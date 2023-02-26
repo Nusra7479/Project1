@@ -1,11 +1,12 @@
 #ifndef B_PLUS_TREE_H_INCLUDED
 #define B_PLUS_TREE_H_INCLUDED
-
+/*
+#include <vector>
 class Node {
     bool isLeaf;
     int size;
     int maxKeys; // maximum no of keys in a node
-    std::vector<float> keys; // array of keys (numVotes)
+    std::vector<int> keys; // array of keys (numVotes)
     std::vector<void*> ptrs; //non-leaf points to node, leaf points to record
     /////////Programiz
     //int *key, size;
@@ -16,7 +17,7 @@ class Node {
     friend class BPTree; //allow BPTree to access private and protected members of Node
 
     public:
-        Node(maxKeys): maxKeys(maxKeys) {}
+        Node(int maxKeys): maxKeys(maxKeys) {}
 };
 
 
@@ -27,14 +28,20 @@ class BPTree {
         BPTree();
 
         void setRoot(Node *root);
-        void insertInternal(float key, Node *parent, Node *child);
+        void insertInternal(int key, Node *parent, Node *child);
         Node *findParent(Node *root, Node *child);
+        //void insertKey(int key, Record *recordPtr, int blockIndex); //insert record pointer and its key into the BPTree
 
-        void insertKey(float key, Record *recordPtr); //insert record pointer and its key into the BPTree
-        void searchKey(float key);
+        //Retrieval
+        void searchKey(int key); // For experiment 3
+        void searchKeyRange(int keyMin, int keyMax); // For experiment 4
+
+
         void display(Node *root);
         Node *getRoot();
 };
 
-
+*/
 #endif // B_PLUS_TREE_H_INCLUDED
+
+

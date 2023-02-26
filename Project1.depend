@@ -1,0 +1,12 @@
+# depslib dependency file v1.0
+1677418495 source:c:\users\nusra\documents\cz4031\project1\main.cpp
+	<iostream>
+	"b_plus_tree.h"
+	"BPTree.h"
+
+1677418586 c:\users\nusra\documents\cz4031\project1\b_plus_tree.h
+	<vector>
+
+1677418449 c:\users\nusra\documents\cz4031\project1\bptree.h
+	<vector>
+
