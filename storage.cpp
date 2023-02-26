@@ -97,6 +97,26 @@ public:
         cout<<"Records sorted!"<<endl;
     }
 
+    void searchKey(int key) { //Does not work
+        ////start search
+        int numOfRecords = 0;
+         for (int i = 0; i < numBlocks; i++) {
+            Block block = blocks[i];
+            for (int j = 0; j < block.records.size(); j++) {
+                Record record = block.records[j];
+                if (record.numVotes == key){
+                    numOfRecords++;
+                }
+                if (record.numVotes > key){
+                    //// end search
+                    cout << "The number of data blocks that would be accessed by a brute-force linear scan method:" << i << endl;
+                    cout << "The number of records" << numOfRecords << endl;
+                    return;
+                }
+            }
+        }
+    }
+
 private:
     // Struct to represent a block
     struct Block {
@@ -137,6 +157,7 @@ int main() {
     disk.sortRecords();
     // Print to test again
     disk.printRecords();
+    disk.searchKey(500);
 
     return 0;
 }
