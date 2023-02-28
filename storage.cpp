@@ -1,9 +1,9 @@
-#include <iostream>
 #include <vector>
 #include <algorithm>
 #include <cstring>
 #include <fstream>
 #include <sstream>
+#include <iostream>
 
 using namespace std;
 
@@ -13,7 +13,7 @@ const int MAX_BLOCKS = DISK_CAPACITY / BLOCK_SIZE;
 
 // Record as a struct, containing its attributes
 struct Record {
-    string tconst;
+    char tconst[10];
     float averageRating;
     int numVotes;
 };
@@ -32,19 +32,17 @@ public:
             cerr << "Error: Disk capacity is full" << endl;
             return;
         }
-        //cout<<"curBlock size is "<<curBlock.size<<endl;
-        //cout<<"sizeof Record is "<<sizeof(Record)<<endl;
         // Check if the current block has sufficient space for another record
-        if (curBlock.size + sizeof(Record) <= BLOCK_SIZE) {
+        if (curBlock.size + sizeof(record) <= BLOCK_SIZE) {
             // If so, append the record to the current block
             curBlock.records.push_back(record);
-            curBlock.size += sizeof(Record);
+            curBlock.size += sizeof(record);
         } else {
             // Else, push the current block to the list of blocks and start a new block
             blocks.push_back(curBlock);
             numBlocks++;
             curBlock.records.clear();
-            curBlock.size = sizeof(Record);
+            curBlock.size = sizeof(record);
             curBlock.records.push_back(record);
         }
     }
@@ -96,7 +94,7 @@ public:
         }
         cout<<"Records sorted!"<<endl;
     }
-
+    
     void searchKey(int key) { //Does not work
         ////start search
         int numOfRecords = 0;
@@ -117,6 +115,21 @@ public:
         }
     }
 
+    vector<Record> searchRecord(int numVotes) { //returns a vector consisting all records with target numVotes
+        vector<Record> result;
+        for (int i = 0; i < numBlocks; i++) {
+            Block block = blocks[i];
+            for (int j = 0; j < block.records.size(); j++) {
+                Record record = block.records[j];
+                if (record.numVotes == numVotes) {
+                    result.push_back(record);
+                }
+            }
+        }
+        return result;
+    }
+
+
 private:
     // Struct to represent a block
     struct Block {
@@ -130,37 +143,6 @@ private:
 };
 
 
-int main() {
-    Disk disk;
-
-    // Read TSV
-    ifstream infile("data.tsv");
-
-    // yum yum the header
-    string header;
-    getline(infile, header);
-
-    // We read the file
-    string line;
-    while (getline(infile, line)) {
-        stringstream ss(line);
-        string tconst;
-        float averageRating;
-        int numVotes;
-        ss >> tconst >> averageRating >> numVotes;
-        Record record = {tconst, averageRating, numVotes};
-        disk.addRecord(record);
-    }
-    // Print records
-    disk.printRecords();
-    // sort em
-    disk.sortRecords();
-    // Print to test again
-    disk.printRecords();
-    disk.searchKey(500);
-
-    return 0;
-}
 
 
 
