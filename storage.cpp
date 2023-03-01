@@ -94,38 +94,44 @@ public:
         }
         cout<<"Records sorted!"<<endl;
     }
-    
-    void searchKey(int key) { //Does not work
+
+    void searchKey(int minKey, int maxKey) {
         ////start search
         int numOfRecords = 0;
          for (int i = 0; i < numBlocks; i++) {
             Block block = blocks[i];
             for (int j = 0; j < block.records.size(); j++) {
                 Record record = block.records[j];
-                if (record.numVotes == key){
+                if (record.numVotes >= minKey && record.numVotes <= maxKey){
                     numOfRecords++;
                 }
-                if (record.numVotes > key){
+                if (record.numVotes > maxKey){
                     //// end search
-                    cout << "The number of data blocks that would be accessed by a brute-force linear scan method:" << i << endl;
-                    cout << "The number of records" << numOfRecords << endl;
+                    int numDataBlocks = i;
+                    if (j == 0)
+                        numDataBlocks = i-1;
+                    cout << "The number of data blocks that would be accessed by a brute-force linear scan method: " << numDataBlocks << endl;
+                    cout << "The number of records (brute-force linear scan): " << numOfRecords << endl;
                     return;
                 }
             }
         }
     }
 
-    vector<Record> searchRecord(int numVotes) { //returns a vector consisting all records with target numVotes
+    vector<Record> searchRecord(int minNumVotes, int maxNumVotes) { //returns a vector consisting all records with target numVotes
+        int i;
         vector<Record> result;
-        for (int i = 0; i < numBlocks; i++) {
+        for (i = 0; i < numBlocks; i++) {
             Block block = blocks[i];
             for (int j = 0; j < block.records.size(); j++) {
                 Record record = block.records[j];
-                if (record.numVotes == numVotes) {
+                if (record.numVotes >= minNumVotes && record.numVotes <= maxNumVotes) {
                     result.push_back(record);
                 }
             }
         }
+        cout << "The number of data blocks that would be accessed by a brute-force linear scan method: " << i << endl;
+        cout << "The number of records (brute-force linear scan): " << result.size() << endl;
         return result;
     }
 

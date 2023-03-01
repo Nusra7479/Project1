@@ -1,6 +1,6 @@
 #ifndef B_PLUS_TREE_H_INCLUDED
 #define B_PLUS_TREE_H_INCLUDED
-/*
+
 #include <vector>
 class Node {
     bool isLeaf;
@@ -32,16 +32,15 @@ class BPTree {
         Node *findParent(Node *root, Node *child);
         //void insertKey(int key, Record *recordPtr, int blockIndex); //insert record pointer and its key into the BPTree
 
-        //Retrieval
-        void searchKey(int key); // For experiment 3
-        void searchKeyRange(int keyMin, int keyMax); // For experiment 4
-
+        //Retrieval for experiment 3 & 4
+        //vector<void *> searchKey(int key);
+        vector<void *> searchKeyRange(int keyMin, int keyMax);
 
         void display(Node *root);
         Node *getRoot();
 };
 
-*/
+
 #endif // B_PLUS_TREE_H_INCLUDED
 
 
