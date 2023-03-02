@@ -1,6 +1,6 @@
 #ifndef B_PLUS_TREE_H_INCLUDED
 #define B_PLUS_TREE_H_INCLUDED
-
+#include "storage.cpp"
 
 #include <vector>
 class Node {

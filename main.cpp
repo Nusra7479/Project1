@@ -4,12 +4,12 @@
 #include <cstring>
 #include <fstream>
 #include <sstream>
-#include "storage.cpp"
-#include "b_plus_tree.h"
+//#include "storage.cpp"
+#include "BPTree.cpp"
 
 using namespace std;
 
-void readTSVFile(string filename, Disk& disk) {
+void readTSVFile(string filename, Disk& disk, BPTree& bptree) {
     ifstream infile(filename);
     if (!infile) {
         cerr << "Error: unable to open file " << filename << endl;
@@ -28,6 +28,7 @@ void readTSVFile(string filename, Disk& disk) {
         record.averageRating = averageRating;
         record.numVotes = numVotes;
         disk.addRecord(record);
+        //bptree.insert(numVotes, &record);
     }
     infile.close();
 }
@@ -66,7 +67,7 @@ float getAvgRating (vector<Record*> b_targets){
         totalRating = totalRating + b_targets[i]->averageRating;
     }
     float average = totalRating/b_targets.size();
-    cout << "The average of “averageRating’s” of the records that are returned: " << average<< endl;
+    cout << "The average of \“averageRating\’s\” of the records that are returned: " << average<< endl;
     cout << "The number of records (B+ Tree): " << b_targets.size() << endl;
     return average;
 }
@@ -75,13 +76,13 @@ int main()
 {
     short int n = 5;
     bool sorted = false;
-    cout << "Hello world!" << n << endl;
+    //cout << "Hello world!" << n << endl;
     BPTree bpTree = BPTree(n);
     cout << "------------------------ Storage aspects and testing ------------------------" <<endl;
     Disk disk;
     // Read TSV
     string filename= "data.tsv";
-    readTSVFile(filename, disk);
+    readTSVFile(filename, disk, bpTree);
     int records;
     //disk.printRecords();
     // sort em
@@ -95,7 +96,7 @@ int main()
     cout << "------------------------ Experiment 2 ------------------------" <<endl;
     cout << endl;
 
-    cout << "------------------------ Experiment 3 ------------------------" <<endl; //Requires Testing, Handling Duplicates
+    cout << "------------------------ Experiment 3 ------------------------" <<endl; //Requires Testing
     ////Search in B+ Tree
     vector<Record*> b_targets3;
     b_targets3 = bpTree.searchKeyRange(500, 500);
@@ -110,7 +111,8 @@ int main()
         targets3=disk.searchRecord(500, 500);
         //printRecords(targets3);
     }
-    cout << "------------------------ Experiment 4 ------------------------" <<endl; //Requires Testing, Handling Duplicates
+    cout << endl;
+    cout << "------------------------ Experiment 4 ------------------------" <<endl; //Requires Testing
     ////Search in B+ Tree
     vector<Record*> b_targets4;
     b_targets4 = bpTree.searchKeyRange(30000, 40000);
@@ -125,7 +127,8 @@ int main()
         targets4=disk.searchRecord(30000, 40000);
         //printRecords(targets4);
     }
-
+    cout << endl;
+    cout << "------------------------ Experiment 5 ------------------------" <<endl;
 
     return 0;
 }

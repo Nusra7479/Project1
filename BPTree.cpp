@@ -1,11 +1,16 @@
 #include <iostream>
 #include "BPTree.h"
-#include "storage.cpp"
+//#include "storage.cpp"
 #include <chrono>
 using namespace std::chrono;
 
+Node::Node(){}
+
+LLNode::LLNode(){}
+
 BPTree::BPTree(short int mK) {
     maxKeys = mK;
+    root = nullptr;
 }
 
 void BPTree::insert(int key, Record* recordPtr){
