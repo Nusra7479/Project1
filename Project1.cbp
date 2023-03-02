@@ -39,6 +39,7 @@
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="main.cpp" />
+		<Unit filename="storage.cpp" />
 		<Extensions>
 			<lib_finder disable_auto="1" />
 		</Extensions>
