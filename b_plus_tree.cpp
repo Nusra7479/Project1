@@ -159,7 +159,7 @@ void BPTree::insertInternal(int key, Node* parent, Node* child) {
             newRootKeys.push_back(promotedKey);
             newRoot->keys = newRootKeys;
 
-vector<            vector<void*> newRootPtrs;
+            vector<void*> newRootPtrs;
             newRootPtrs.push_back(parent);
             newRootPtrs.push_back(right);
             newRoot->ptrs = newRootPtrs;

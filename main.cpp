@@ -76,7 +76,7 @@ int main()
     short int n = 5;
     bool sorted = false;
     cout << "Hello world!" << n << endl;
-    BPTree bpTree = new BPTree(n);
+    BPTree bpTree = BPTree(n);
     cout << "------------------------ Storage aspects and testing ------------------------" <<endl;
     Disk disk;
     // Read TSV
