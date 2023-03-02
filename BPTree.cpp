@@ -2,7 +2,6 @@
 #include "BPTree.h"
 #include "storage.cpp"
 #include <chrono>
-#include "storage.cpp"
 using namespace std::chrono;
 
 BPTree::BPTree(short int mK) {
