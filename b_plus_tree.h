@@ -31,12 +31,12 @@ class BPTree {
         Node *findParent(Node *root, Node *child);
         void insert(int key, Record *recordPtr); //insert record pointer and its key into the BPTree
         void llInsert(int key);
-        
-        
+
+
 
         //Retrieval for experiment 3 & 4
         //vector<void *> searchKey(int key);
-        vector<void *> searchKeyRange(int keyMin, int keyMax);
+        vector<Record *> searchKeyRange(int keyMin, int keyMax);
 
         void display(Node *root);
         Node *getRoot();
@@ -49,7 +49,7 @@ class LLNode {
 
     public:
         LLNode();
-        void insert(Record* recordPtr);    
+        void insert(Record* recordPtr);
 };
 
 

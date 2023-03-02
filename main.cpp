@@ -39,7 +39,7 @@ void printRecords(const vector<Record>& records) {
     cout << "Records printed!" << endl;
 }
 
-int getDiskIO(Disk disk, vector<void*> b_targets){
+int getDiskIO(Disk disk, vector<Record*> b_targets){
     int dataBlocksAccessed;
 
     for (int i = 0; i < disk.numBlocks; i++) {
@@ -58,7 +58,7 @@ int getDiskIO(Disk disk, vector<void*> b_targets){
     return dataBlocksAccessed;
 }
 
-float getAvgRating (vector<void*> b_targets){
+float getAvgRating (vector<Record*> b_targets){
     float totalRating;
     for (int i; i< b_targets.size(); i++){
         totalRating = totalRating + recordptr->averageRating;
@@ -95,7 +95,7 @@ int main()
 
     cout << "------------------------ Experiment 3 ------------------------" <<endl; //Requires Testing, Handling Duplicates
     ////Search in B+ Tree
-    vector<void*> b_targets3;
+    vector<Record*> b_targets3;
     b_targets3 = bpTree.searchKeyRange(500, 500);
     getDiskIO(disk, b_targets3);
     getAvgRating(b_targets3);
@@ -110,7 +110,7 @@ int main()
     }
     cout << "------------------------ Experiment 4 ------------------------" <<endl; //Requires Testing, Handling Duplicates
     ////Search in B+ Tree
-    vector<void*> b_targets4;
+    vector<Record*> b_targets4;
     b_targets4 = bpTree.searchKeyRange(30000, 40000);
     getDiskIO(disk, b_targets4);
     getAvgRating(b_targets4);

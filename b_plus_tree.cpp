@@ -16,21 +16,21 @@ void BPTree::insert(int key, Record* recordPtr){
         root->isLeaf = true;
         root->keys[0] = key;
         root->parent = nullptr;
-    } 
+    }
 
     else {
         Node* cursor = root;
         Node* parent;
- 
+
         while (cursor->isLeaf == false) {
             parent = cursor;
- 
+
             for (int i = 0; i < cursor->size; i++) {
                 if (key < cursor->keys[i]) {
                     cursor = (Node*) cursor->ptrs[i];
                     break;
                 }
- 
+
                 if (i == cursor->size - 1) {
                     cursor = (Node*) cursor->ptrs[i + 1];
                     break;
@@ -39,7 +39,7 @@ void BPTree::insert(int key, Record* recordPtr){
         }
 
         // Reached leaf
-        
+
         for (int i = 0; i < cursor->size; i++) {
                 if (key > cursor->keys[i]) {
                     continue;
@@ -90,11 +90,11 @@ void BPTree::insert(int key, Record* recordPtr){
             cursor->size = leftKeys.size();
             cursor->ptrs = leftPtrs;
             cursor->ptrs.push_back(&right);
-            
+
             // Parent insertion / update
             int toInsert = right->keys.front();
             insertInternal(toInsert, cursor->parent, right);
-        } 
+        }
     }
 }
 
@@ -122,13 +122,13 @@ void BPTree::insertInternal(int key, Node* parent, Node* child) {
         // remaining keys: distribute between left and right, with more in left
         int leftSize = parent->keys.size() - parent->keys.size() / 2; // floor
         vector<int> leftKeys(parent->keys.begin(), parent->keys.begin() + leftSize);
-        vector<int> rightKeys(parent->keys.begin() + leftSize, parent->keys.end()); 
+        vector<int> rightKeys(parent->keys.begin() + leftSize, parent->keys.end());
         int rightSize = rightKeys.size();
 
         // distribute pointers
         vector<void*> leftPtrs(parent->ptrs.begin(), parent->ptrs.begin() + leftSize + 1);
         vector<void*> rightPtrs(parent->ptrs.begin() + leftSize + 1, parent->ptrs.end());
-        
+
         // create right node
         Node* right = new Node();
         right->isLeaf = false;
@@ -151,14 +151,14 @@ void BPTree::insertInternal(int key, Node* parent, Node* child) {
         // two cases: root or internal
         if (!parent->parent) { // current node is the root, we need to make a new root
             Node* newRoot = new Node();
-            
+
             newRoot->isLeaf = false;
             newRoot->size = 1;
 
             vector<int> newRootKeys; // TODO: make this less ugly
             newRootKeys.push_back(promotedKey);
             newRoot->keys = newRootKeys;
-            
+
 vector<            vector<void*> newRootPtrs;
             newRootPtrs.push_back(parent);
             newRootPtrs.push_back(right);
@@ -172,8 +172,8 @@ vector<            vector<void*> newRootPtrs;
     }
 }
 
-void *> BPTree::searchKeyRange(int minNumVotes, int maxNumVotes) { //ToDo Duplicates & dataBlocksAccessed
-    vector<void *> result;
+vector <Record *> BPTree::searchKeyRange(int minNumVotes, int maxNumVotes) { //ToDo Duplicates & dataBlocksAccessed
+    vector <Record *> result;
 
     //// start timer && initialize values
     auto start = high_resolution_clock::now();
@@ -217,14 +217,18 @@ void *> BPTree::searchKeyRange(int minNumVotes, int maxNumVotes) { //ToDo Duplic
                 break;
             }
             if (ptrKey >= minNumVotes && ptrKey <= maxNumVotes) {
-                void *recordptr = cursor->ptrs[i];
-                result.push_back(recordptr);
-                //dataBlocksAccessed++;
-                //totalRecords++;
-                //totalRating = totalRating + recordptr->averageRating;
+                //void *recordptr = cursor->ptrs[i];
+                //result.push_back(recordptr);
 
                 //// handle duplicates TODO
                 // here
+                LLNode* listNode = (LLNode*) cursor->ptrs[i];
+                while (listNode->next){
+                    recordptr = listNode->recordPtr;
+                    result.push_back(recordptr);
+                    listNode = listNode->next;
+                }
+
             }
         }
         if (!allFound){
