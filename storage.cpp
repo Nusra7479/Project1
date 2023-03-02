@@ -135,6 +135,28 @@ public:
         return result;
     }
 
+    int getDiskIO(vector<Record*> b_targets){
+        int dataBlocksAccessed;
+
+        for (int i = 0; i < numBlocks; i++) {
+            Block block = blocks[i];
+            for (int j = 0; j < block.records.size(); j++) {
+                Record record = block.records[j];
+                for (int k = 0; k < b_targets.size(); k++){
+                     if (b_targets[k]->tconst == record.tconst){
+                        dataBlocksAccessed++;
+                        break;
+                    }
+                }
+            }
+        }
+        cout << "The number of data blocks the process accesses: "<< dataBlocksAccessed << endl;
+        return dataBlocksAccessed;
+}
+
+
+
+
 
 private:
     // Struct to represent a block

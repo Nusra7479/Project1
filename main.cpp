@@ -5,6 +5,7 @@
 #include <fstream>
 #include <sstream>
 #include "storage.cpp"
+#include "b_plus_tree.h"
 
 using namespace std;
 
@@ -38,11 +39,11 @@ void printRecords(const vector<Record>& records) {
     }
     cout << "Records printed!" << endl;
 }
-
+/*
 int getDiskIO(Disk disk, vector<Record*> b_targets){
     int dataBlocksAccessed;
 
-    for (int i = 0; i < disk.numBlocks; i++) {
+    for (int i = 0; i < disk.getNumBlocks(); i++) {
         Block block = blocks[i];
         for (int j = 0; j < block.records.size(); j++) {
             Record record = block.records[j];
@@ -57,24 +58,25 @@ int getDiskIO(Disk disk, vector<Record*> b_targets){
     cout << "The number of data blocks the process accesses: "<< dataBlocksAccessed << endl;
     return dataBlocksAccessed;
 }
+*/
 
 float getAvgRating (vector<Record*> b_targets){
     float totalRating;
     for (int i; i< b_targets.size(); i++){
-        totalRating = totalRating + recordptr->averageRating;
+        totalRating = totalRating + b_targets[i]->averageRating;
     }
     float average = totalRating/b_targets.size();
     cout << "The average of “averageRating’s” of the records that are returned: " << average<< endl;
     cout << "The number of records (B+ Tree): " << b_targets.size() << endl;
-    return average
+    return average;
 }
 
 int main()
 {
-    int n = 5;
+    short int n = 5;
     bool sorted = false;
     cout << "Hello world!" << n << endl;
-    //BPTree bpTree;
+    BPTree bpTree = new BPTree(n);
     cout << "------------------------ Storage aspects and testing ------------------------" <<endl;
     Disk disk;
     // Read TSV
@@ -97,7 +99,7 @@ int main()
     ////Search in B+ Tree
     vector<Record*> b_targets3;
     b_targets3 = bpTree.searchKeyRange(500, 500);
-    getDiskIO(disk, b_targets3);
+    disk.getDiskIO(b_targets3);
     getAvgRating(b_targets3);
 
     ////Search in Storage
@@ -112,7 +114,7 @@ int main()
     ////Search in B+ Tree
     vector<Record*> b_targets4;
     b_targets4 = bpTree.searchKeyRange(30000, 40000);
-    getDiskIO(disk, b_targets4);
+    disk.getDiskIO(b_targets4);
     getAvgRating(b_targets4);
 
     ////Search in Storage
