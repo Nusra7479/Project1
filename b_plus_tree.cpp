@@ -193,8 +193,8 @@ vector <Record *> BPTree::searchKeyRange(int minNumVotes, int maxNumVotes) { //T
     ////traverse until we find the leaf node pertaining the minNumVotes
     while (cursor->isLeaf == false){
         for (int i = 0; i < cursor->size; i++) {
-            if (minNumVotes < cursor->key[i]) {
-                cursor = cursor->ptr[i]; // if searchKey < NodeKey, go to LHS Node
+            if (minNumVotes < cursor->keys[i]) {
+                cursor = (Node*) cursor->ptrs[i]; // if searchKey < NodeKey, go to LHS Node
                 indexNodesAccessed++;
                 break;
             }
@@ -211,7 +211,7 @@ vector <Record *> BPTree::searchKeyRange(int minNumVotes, int maxNumVotes) { //T
     bool allFound = false;
     while (!allFound){
         for (int i = 0; i < cursor->size; i++) {
-            int ptrKey = cursor->key[i];
+            int ptrKey = cursor->keys[i];
             if (ptrKey > maxNumVotes){
                 allFound = true;
                 break;
@@ -224,7 +224,7 @@ vector <Record *> BPTree::searchKeyRange(int minNumVotes, int maxNumVotes) { //T
                 // here
                 LLNode* listNode = (LLNode*) cursor->ptrs[i];
                 while (listNode->next){
-                    recordptr = listNode->recordPtr;
+                    Record* recordptr = listNode->recordPtr;
                     result.push_back(recordptr);
                     listNode = listNode->next;
                 }
@@ -233,7 +233,7 @@ vector <Record *> BPTree::searchKeyRange(int minNumVotes, int maxNumVotes) { //T
         }
         if (!allFound){
             //// Move to the next leaf node
-            cursor = cursor->ptrs[cursor->size];
+            cursor = (Node*) cursor->ptrs[cursor->size];
             indexNodesAccessed++;
         }
     }
