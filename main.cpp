@@ -4,7 +4,6 @@
 #include <cstring>
 #include <fstream>
 #include <sstream>
-//#include "storage.cpp"
 #include "BPTree.cpp"
 
 using namespace std;
@@ -67,7 +66,7 @@ float getAvgRating (vector<Record*> b_targets){
         totalRating = totalRating + b_targets[i]->averageRating;
     }
     float average = totalRating/b_targets.size();
-    cout << "The average of \“averageRating\’s\” of the records that are returned: " << average<< endl;
+    cout << "The average of averageRatings of the records that are returned: " << average<< endl;
     cout << "The number of records (B+ Tree): " << b_targets.size() << endl;
     return average;
 }

@@ -1,7 +1,8 @@
 #include <iostream>
 #include "BPTree.h"
-//#include "storage.cpp"
 #include <chrono>
+#include <vector>
+
 using namespace std::chrono;
 
 Node::Node(){}
@@ -256,8 +257,6 @@ vector <Record *> BPTree::searchKeyRange(int minNumVotes, int maxNumVotes) { //T
     cout << "The running time of the retrieval process: " << runningTime.count() << endl;
     return result;
 
-
-
     }
 
 
@@ -271,5 +270,3 @@ void LLNode::insert(Record* recordPtr) {
     newLLNode->recordPtr = recordPtr;
     currentNode->next = newLLNode;
 }
-
-
