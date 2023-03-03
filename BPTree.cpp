@@ -5,7 +5,13 @@
 
 using namespace std::chrono;
 
-Node::Node(){}
+Node::Node(){
+    vector<int> keyVector;
+    keys = keyVector;
+
+    vector<void*> ptrVector;
+    ptrs = ptrVector;
+}
 
 LLNode::LLNode(){}
 
@@ -15,28 +21,40 @@ BPTree::BPTree(short int mK) {
 }
 
 void BPTree::insert(int key, Record* recordPtr){
+    // std::cout << "Key: " << endl;
+    // std::cout << key << endl;
+
     if (root == nullptr){
         root = new Node;
         root->size=1;
         root->isLeaf = true;
-        root->keys[0] = key;
+        root->keys.push_back(key);
         root->parent = nullptr;
+
+        LLNode* newLLNode = new LLNode();
+        newLLNode->recordPtr = recordPtr;
+        newLLNode->next = nullptr;
+
+        root->ptrs.push_back(newLLNode);
+        root->ptrs.push_back(nullptr);
     }
 
     else {
         Node* cursor = root;
-        Node* parent;
 
         while (cursor->isLeaf == false) {
-            parent = cursor;
+
+            // std::cout << "Cursor:" << endl;
+            // std::cout << cursor << endl;
 
             for (int i = 0; i < cursor->size; i++) {
                 if (key < cursor->keys[i]) {
                     cursor = (Node*) cursor->ptrs[i];
                     break;
                 }
-
                 if (i == cursor->size - 1) {
+                    // std::cout << "SPECIAL:" << endl;
+                    // std::cout << cursor << endl;
                     cursor = (Node*) cursor->ptrs[i + 1];
                     break;
                 }
@@ -45,7 +63,20 @@ void BPTree::insert(int key, Record* recordPtr){
 
         // Reached leaf
 
-        for (int i = 0; i < cursor->size; i++) {
+        for (int i = 0; i < cursor->size + 1; i++) { // TODO: VERY UGLY
+
+                if (i == cursor->size) {
+                    LLNode* newLLNode = new LLNode();
+                    newLLNode->recordPtr = recordPtr;
+                    newLLNode->next = nullptr;
+
+                    cursor->keys.insert(cursor->keys.begin() + i, key);
+                    cursor->ptrs.insert(cursor->ptrs.begin() + i, newLLNode);
+                    cursor->size++;
+
+                    break;
+                }
+
                 if (key > cursor->keys[i]) {
                     continue;
                 }
@@ -54,6 +85,7 @@ void BPTree::insert(int key, Record* recordPtr){
                     LLNode* existingPtr = (LLNode*) cursor->ptrs[i]; // Safe cast because key exists already.
                     LLNode listNode = *existingPtr;
                     listNode.insert(recordPtr);
+                    break;
                 }
                 // Make LL of length 1
                 LLNode* newLLNode = new LLNode();
@@ -67,8 +99,23 @@ void BPTree::insert(int key, Record* recordPtr){
                 break;
         }
 
+            // std::cout << "isLeaf:" << endl;
+            // std::cout << cursor->isLeaf << endl;
+
+            // std::cout << "parent?:" << endl;
+            // std::cout << (cursor->parent) << endl;
+
+            // std::cout << "key?:" << endl;
+            // std::cout << key << endl;
+
+            // std::cout << "size?:" << endl;
+            // std::cout << (cursor->size) << endl;
+
+            // std::cout << " " << endl;
+
         // Split if needed
         if (cursor->size > this->maxKeys) {
+
             int halfSize = cursor->size / 2; // floor
             vector<int> leftKeys(cursor->keys.begin(), cursor->keys.begin() + (cursor->size - halfSize));
             vector<int> rightKeys(cursor->keys.begin() + (cursor->size - halfSize), cursor->keys.end());
@@ -79,7 +126,6 @@ void BPTree::insert(int key, Record* recordPtr){
             Node* right = new Node();
             right->isLeaf = true;
             right->size = rightSize;
-            right->parent = cursor->parent;
             right->keys = rightKeys;
 
             // Handling pointers
@@ -96,9 +142,47 @@ void BPTree::insert(int key, Record* recordPtr){
             cursor->ptrs = leftPtrs;
             cursor->ptrs.push_back(&right);
 
+            // std::cout << "isLeaf:" << endl;
+            // std::cout << cursor->isLeaf << endl;
+
+            // std::cout << "parent?:" << endl;
+            // std::cout << (cursor->parent) << endl;
+
+            if (cursor->isLeaf && !(cursor->parent)) { // Should only happen once?
+                // std::cout << "once?" << endl;
+
+                Node* newRoot = new Node();
+                
+
+                newRoot->isLeaf = false;
+                newRoot->size = 1;
+
+                vector<int> newRootKeys; // TODO: make this less ugly
+                int promotedKey = right->keys.front();
+
+                // std::cout << "promotedKey:" << endl;
+                // std::cout << promotedKey << endl;
+
+                newRootKeys.push_back(promotedKey);
+                newRoot->keys = newRootKeys;
+
+                vector<void*> newRootPtrs;
+                newRootPtrs.push_back(cursor);
+                newRootPtrs.push_back(right);
+                newRoot->ptrs = newRootPtrs;
+                newRoot->parent = nullptr;
+                cursor->parent = newRoot;
+                right->parent = newRoot;
+
+                this->root = newRoot;
+                return;
+            }
+
+            right->parent = cursor->parent;
+
             // Parent insertion / update
-            int toInsert = right->keys.front();
-            insertInternal(toInsert, cursor->parent, right);
+            int promotedKey = right->keys.front();
+            insertInternal(promotedKey, cursor->parent, right);
         }
     }
 }
@@ -169,6 +253,7 @@ void BPTree::insertInternal(int key, Node* parent, Node* child) {
             newRootPtrs.push_back(right);
             newRoot->ptrs = newRootPtrs;
             newRoot->parent = nullptr;
+            parent->parent = newRoot;
 
             this->root = newRoot;
         } else { // current node is internal, recurse on promoted key
@@ -184,20 +269,24 @@ vector <Record *> BPTree::searchKeyRange(int minNumVotes, int maxNumVotes) { //T
     auto start = high_resolution_clock::now();
     int indexNodesAccessed = 0;
 
+    Node* root = getRoot();
+
     ////If root is null, empty tree
     if (root == nullptr){
         std::cout << "ERROR: B+ Tree is Empty!" << std::endl;
-        return result;
+        return result; // empty vector
     }
 
+    Node *cursor = root;
     //int dataBlocksAccessed = 0;
 
-    Node *cursor = root;
+
     indexNodesAccessed++; // first node - root
 
     ////traverse until we find the leaf node pertaining the minNumVotes
     while (cursor->isLeaf == false){
         for (int i = 0; i < cursor->size; i++) {
+            // std::cout << "HELLO" << endl;
             if (minNumVotes < cursor->keys[i]) {
                 cursor = (Node*) cursor->ptrs[i]; // if searchKey < NodeKey, go to LHS Node
                 indexNodesAccessed++;
@@ -205,6 +294,8 @@ vector <Record *> BPTree::searchKeyRange(int minNumVotes, int maxNumVotes) { //T
             }
 
             if (i == cursor->size - 1) {
+                // std::cout << "SPECIAL:" << endl;
+                // std::cout << cursor << endl;
                 cursor = (Node*) cursor->ptrs[i + 1];
                 indexNodesAccessed++;
                 break;
@@ -228,7 +319,7 @@ vector <Record *> BPTree::searchKeyRange(int minNumVotes, int maxNumVotes) { //T
                 //// handle duplicates TODO
                 // here
                 LLNode* listNode = (LLNode*) cursor->ptrs[i];
-                while (listNode->next){
+                while (listNode){
                     Record* recordptr = listNode->recordPtr;
                     result.push_back(recordptr);
                     listNode = listNode->next;
@@ -239,6 +330,9 @@ vector <Record *> BPTree::searchKeyRange(int minNumVotes, int maxNumVotes) { //T
         if (!allFound){
             //// Move to the next leaf node
             cursor = (Node*) cursor->ptrs[cursor->size];
+            if (!cursor) { // cursor is null, reached last leaf node
+                break; // out of while loop
+            }
             indexNodesAccessed++;
         }
     }
@@ -269,4 +363,27 @@ void LLNode::insert(Record* recordPtr) {
     newLLNode->next = nullptr;
     newLLNode->recordPtr = recordPtr;
     currentNode->next = newLLNode;
+}
+
+Node* BPTree::getRoot() {
+    return this->root;
+}
+
+void BPTree::showRoot() {
+    Node* root = this->root;
+    for (int i = 0; i < root->size; i++) {
+        std::cout << root->keys[i] << endl;
+    }
+}
+
+void BPTree::showChildren() {
+    Node* root = this->root;
+
+    for (int i = 0; i < root->ptrs.size(); i++) {
+        Node* child = (Node*) root->ptrs[i];
+        for (int j = 0; j < child->keys.size(); j++) {
+            std::cout << i << endl;
+            std::cout << child->keys[j] << endl;
+        }
+    }
 }

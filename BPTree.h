@@ -31,7 +31,8 @@ class BPTree {
         Node *findParent(Node *root, Node *child);
         void insert(int key, Record *recordPtr); //insert record pointer and its key into the BPTree
         void llInsert(int key);
-
+        void showRoot();
+        void showChildren();
 
 
         //Retrieval for experiment 3 & 4

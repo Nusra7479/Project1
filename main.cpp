@@ -27,10 +27,11 @@ void readTSVFile(string filename, Disk& disk, BPTree& bptree) {
         record.averageRating = averageRating;
         record.numVotes = numVotes;
         disk.addRecord(record);
-        //bptree.insert(numVotes, &record);
+        bptree.insert(numVotes, &record); // &record returns address of Record object on heap(?) instead of record address on disk.
     }
     infile.close();
 }
+
 
 void printRecords(const vector<Record>& records) {
     cout << "Printing records..." << endl;
@@ -73,7 +74,7 @@ float getAvgRating (vector<Record*> b_targets){
 
 int main()
 {
-    short int n = 5;
+    short int n = 15;
     bool sorted = false;
     //cout << "Hello world!" << n << endl;
     BPTree bpTree = BPTree(n);
@@ -82,6 +83,11 @@ int main()
     // Read TSV
     string filename= "data.tsv";
     readTSVFile(filename, disk, bpTree);
+    std::cout << "ROOT:" << endl;
+    bpTree.showRoot();
+    std::cout << "CHILDREN" << endl;
+    // bpTree.showChildren();
+    //BPTree has keys.
     int records;
     //disk.printRecords();
     // sort em
