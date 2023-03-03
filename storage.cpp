@@ -32,9 +32,9 @@ public:
         for (int i = 0; i < numBlocks; i++) {
             Block block = blocks[i];
             for (int j = 0; j < block.records.size(); j++) {
-                Record& record = block.records[j];
+                Record record = block.records[j];
                 if (!record.deleted) {
-                    result.push_back(&record);
+                    result.push_back(&(blocks[i].records[j]));
                 }
             }
         }
@@ -210,11 +210,6 @@ public:
         recordPtr->deleted = true;
 
     }
-
-
-
-
-
 
 private:
     // Struct to represent a block

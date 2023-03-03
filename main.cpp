@@ -8,6 +8,7 @@
 
 using namespace std;
 
+// Reads TSV file and saves it to Disk
 void readTSVFile(string filename, Disk& disk, BPTree& bptree) {
     ifstream infile(filename);
     if (!infile) {
@@ -27,6 +28,7 @@ void readTSVFile(string filename, Disk& disk, BPTree& bptree) {
         record.averageRating = averageRating;
         record.numVotes = numVotes;
         disk.addRecord(record);
+        // disk.finalizeBlocks(); // TODO without this: missing some records. with: too many records, blocks. debug? 
     }
     infile.close();
 }
@@ -62,11 +64,11 @@ int getDiskIO(Disk disk, vector<Record*> b_targets){
 
 float getAvgRating (vector<Record*> b_targets){
     float totalRating;
-    for (int i; i< b_targets.size(); i++){
+    for (int i=0; i< b_targets.size(); i++){
         totalRating = totalRating + b_targets[i]->averageRating;
     }
     float average = totalRating/b_targets.size();
-    cout << "The average of averageRatings of the records that are returned: " << average<< endl;
+    cout << "The average of averageRatings of the records that are returned: " << average << endl;
     cout << "The number of records (B+ Tree): " << b_targets.size() << endl;
     return average;
 }
@@ -75,35 +77,42 @@ int main()
 {
     short int n = 15;
     bool sorted = true;
-    //cout << "Hello world!" << n << endl;
+
     BPTree bpTree = BPTree(n);
     cout << "------------------------ Storage aspects and testing ------------------------" <<endl;
     Disk disk;
-    // Read TSV
-    string filename= "data.tsv";
-    readTSVFile(filename, disk, bpTree);
-    //std::cout << "ROOT:" << endl;
-    //bpTree.showRoot();
-    //std::cout << "CHILDREN" << endl;
-    // bpTree.showChildren();
-    //BPTree has keys.
-    int records;
-    //disk.printRecords();
-    // sort em
-    if (sorted)
-        disk.sortRecords();
-    //disk.printRecords();
-    //cout<<"by ref"<<endl;
-    vector<Record*> allRecordPointers = disk.getAllRecords();
 
+    // Read TSV to disk
+    // string filename = "data.tsv";
+    string filename = "data-small.tsv"; // first 60 records, with first record numVotes changed to 16
+    readTSVFile(filename, disk, bpTree);
+
+    // disk.printRecords();
+
+    // Sort records
+    // if (!sorted)
+    //     disk.sortRecords();
+        
+    // disk.printRecords();
+
+    // Get all records on disk for insertion in BPTree
+    vector<Record*> allRecordPointers = disk.getAllRecords();
+    cout<<"Number of records in the vector: "<<allRecordPointers.size()<<endl; //just to show that indeed all record has been added
     for (int i = 0; i < allRecordPointers.size(); i++) {
         Record* recordPtr = allRecordPointers[i];
-        Record record = *recordPtr; // Dereference the pointer to get the actual record
-        //cout << "Record " << record.tconst << ": " << record.averageRating << " (" << record.numVotes << " votes)" << endl;
+        bpTree.insert(recordPtr->numVotes, recordPtr);
     }
-    cout<<"Number of records in the vector: "<<allRecordPointers.size()<<endl; //just to show that indeed all record has been added
+
+    // disk.printRecords();
+
+    // Debug: checking the root and root's children nodes
+    std::cout << "-- ROOT --" << endl;
+    bpTree.showRoot();
+    std::cout << "-- CHILDREN --" << endl;
+    bpTree.showChildren();
+
     //cout<<"by order"<<endl;
-    //disk.printRecords();
+    // disk.printRecords();
     // Print to test again
     //disk.printRecords();
     cout << "------------------------ Experiment 1 ------------------------" <<endl;
@@ -119,12 +128,13 @@ int main()
     cout << "------------------------ Experiment 3 ------------------------" <<endl; //Requires Testing
     ////Search in B+ Tree
     vector<Record*> b_targets3;
-    b_targets3 = bpTree.searchKeyRange(500, 500);
+    // b_targets3 = bpTree.searchKeyRange(500, 500);
+    b_targets3 = bpTree.searchKeyRange(16, 16);
     disk.getDiskIO(b_targets3);
     getAvgRating(b_targets3);
 
     ////Search in Storage
-    if (sorted)
+    if (!sorted)
         disk.searchKey(500, 500);
     else{
         vector<Record> targets3;

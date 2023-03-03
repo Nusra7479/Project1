@@ -369,21 +369,25 @@ Node* BPTree::getRoot() {
     return this->root;
 }
 
+// Debug function to show root keys
 void BPTree::showRoot() {
     Node* root = this->root;
     for (int i = 0; i < root->size; i++) {
-        std::cout << root->keys[i] << endl;
+        std::cout << root->keys[i] << ", ";
     }
+    std::cout << endl;
 }
 
+// Debug function to show root's children keys
 void BPTree::showChildren() {
     Node* root = this->root;
-
     for (int i = 0; i < root->ptrs.size(); i++) {
+        std::cout << "Child " << i << ": ";
         Node* child = (Node*) root->ptrs[i];
         for (int j = 0; j < child->keys.size(); j++) {
-            std::cout << i << endl;
-            std::cout << child->keys[j] << endl;
+            std::cout << child->keys[j] << ", ";
         }
+        std::cout << endl;
     }
+    std::cout << endl;
 }
