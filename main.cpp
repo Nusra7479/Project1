@@ -28,8 +28,8 @@ void readTSVFile(string filename, Disk& disk, BPTree& bptree) {
         record.averageRating = averageRating;
         record.numVotes = numVotes;
         disk.addRecord(record);
-        // disk.finalizeBlocks(); // TODO without this: missing some records. with: too many records, blocks. debug? 
     }
+    disk.finalizeBlocks(); // TODO without this: missing some records. with: too many records, blocks. debug? 
     infile.close();
 }
 
@@ -83,8 +83,8 @@ int main()
     Disk disk;
 
     // Read TSV to disk
-    // string filename = "data.tsv";
-    string filename = "data-small.tsv"; // first 60 records, with first record numVotes changed to 16
+    string filename = "data.tsv";
+    // string filename = "data-small.tsv"; // first 60 records, with first record numVotes changed to 16
     readTSVFile(filename, disk, bpTree);
 
     // disk.printRecords();
@@ -123,6 +123,11 @@ int main()
     cout << endl;
 
     cout << "------------------------ Experiment 2 ------------------------" <<endl;
+    cout << "Parameter n of the B+ tree: " << n << endl;
+    cout << "Number of nodes of the B+ tree: " << bpTree.getNodeCount() << endl;
+    cout << "Number of levels of the B+ tree: " << bpTree.getLevelCount() << endl;
+    cout << "Content of the root node: ";
+    bpTree.showRoot();
     cout << endl;
 
     cout << "------------------------ Experiment 3 ------------------------" <<endl; //Requires Testing

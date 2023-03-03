@@ -2,8 +2,13 @@
 #include "BPTree.h"
 #include <chrono>
 #include <vector>
+#include <cassert>
 
 using namespace std::chrono;
+
+// issues:
+// 1. exception in searchKeyRange (while traversing leaves?). could be due to insertion -> number of ptrs != number of keys + 1
+// 2. duplicate keys in internal nodes in large cases (with whole data.tsv). small cases seem to be ok, so might be issue with insertInternal
 
 Node::Node(){
     vector<int> keyVector;
@@ -12,8 +17,6 @@ Node::Node(){
     vector<void*> ptrVector;
     ptrs = ptrVector;
 }
-
-LLNode::LLNode(){}
 
 BPTree::BPTree(short int mK) {
     maxKeys = mK;
@@ -25,11 +28,12 @@ void BPTree::insert(int key, Record* recordPtr){
     // std::cout << key << endl;
 
     if (root == nullptr){
-        root = new Node;
+        root = new Node();
         root->size=1;
         root->isLeaf = true;
         root->keys.push_back(key);
         root->parent = nullptr;
+        nodeCount++;
 
         LLNode* newLLNode = new LLNode();
         newLLNode->recordPtr = recordPtr;
@@ -80,13 +84,17 @@ void BPTree::insert(int key, Record* recordPtr){
                 if (key > cursor->keys[i]) {
                     continue;
                 }
+
                 // Duplicate: insert into LL
                 if (key == cursor->keys[i]) {
-                    LLNode* existingPtr = (LLNode*) cursor->ptrs[i]; // Safe cast because key exists already.
-                    LLNode listNode = *existingPtr;
-                    listNode.insert(recordPtr);
+                    LLNode* existingPtr = (LLNode*) cursor->ptrs[i];
+                    LLNode* newNode = new LLNode();
+                    newNode->next = existingPtr;
+                    newNode->recordPtr = recordPtr;
+                    cursor->ptrs[i] = newNode;
                     break;
                 }
+
                 // Make LL of length 1
                 LLNode* newLLNode = new LLNode();
                 newLLNode->recordPtr = recordPtr;
@@ -97,6 +105,7 @@ void BPTree::insert(int key, Record* recordPtr){
                 cursor->size++;
 
                 break;
+
         }
 
             // std::cout << "isLeaf:" << endl;
@@ -127,6 +136,7 @@ void BPTree::insert(int key, Record* recordPtr){
             right->isLeaf = true;
             right->size = rightSize;
             right->keys = rightKeys;
+            nodeCount++;
 
             // Handling pointers
 
@@ -153,7 +163,6 @@ void BPTree::insert(int key, Record* recordPtr){
 
                 Node* newRoot = new Node();
 
-
                 newRoot->isLeaf = false;
                 newRoot->size = 1;
 
@@ -175,10 +184,13 @@ void BPTree::insert(int key, Record* recordPtr){
                 right->parent = newRoot;
 
                 this->root = newRoot;
+                nodeCount++;
                 return;
             }
 
             right->parent = cursor->parent;
+            
+            assert (cursor->keys.size() + 1 == cursor->ptrs.size());
 
             // Parent insertion / update
             int promotedKey = right->keys.front();
@@ -226,6 +238,8 @@ void BPTree::insertInternal(int key, Node* parent, Node* child) {
         right->keys = rightKeys;
         right->ptrs = rightPtrs;
 
+        nodeCount++;
+
         // Update left node
         parent->size = leftSize;
         parent->keys = leftKeys;
@@ -254,6 +268,8 @@ void BPTree::insertInternal(int key, Node* parent, Node* child) {
             newRoot->ptrs = newRootPtrs;
             newRoot->parent = nullptr;
             parent->parent = newRoot;
+
+            nodeCount++;
 
             this->root = newRoot;
         } else { // current node is internal, recurse on promoted key
@@ -313,13 +329,8 @@ vector <Record *> BPTree::searchKeyRange(int minNumVotes, int maxNumVotes) { //T
                 break;
             }
             if (ptrKey >= minNumVotes && ptrKey <= maxNumVotes) {
-                //void *recordptr = cursor->ptrs[i];
-                //result.push_back(recordptr);
-
-                //// handle duplicates TODO
-                // here
                 LLNode* listNode = (LLNode*) cursor->ptrs[i];
-                while (listNode){
+                while (listNode) {
                     Record* recordptr = listNode->recordPtr;
                     result.push_back(recordptr);
                     listNode = listNode->next;
@@ -353,18 +364,6 @@ vector <Record *> BPTree::searchKeyRange(int minNumVotes, int maxNumVotes) { //T
 
     }
 
-
-void LLNode::insert(Record* recordPtr) {
-    LLNode* currentNode = this;
-    while (currentNode->next) {
-        currentNode = currentNode->next;
-    }
-    LLNode* newLLNode = new LLNode();
-    newLLNode->next = nullptr;
-    newLLNode->recordPtr = recordPtr;
-    currentNode->next = newLLNode;
-}
-
 Node* BPTree::getRoot() {
     return this->root;
 }
@@ -390,4 +389,18 @@ void BPTree::showChildren() {
         std::cout << endl;
     }
     std::cout << endl;
+}
+
+int BPTree::getNodeCount() {
+    return nodeCount;
+}
+
+int BPTree::getLevelCount() {
+    int levels = 1;
+    Node* cursor = root;
+    while (!cursor->isLeaf) {
+        cursor = (Node*) cursor->ptrs[0];
+        levels++;
+    }
+    return levels;
 }

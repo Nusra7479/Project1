@@ -19,6 +19,7 @@ class Node {
 class BPTree {
     Node *root;
     int maxKeys; // maximum no of keys in a node
+    int nodeCount;
 
     public:
         BPTree();
@@ -32,6 +33,8 @@ class BPTree {
         void llInsert(int key);
         void showRoot();
         void showChildren();
+        int getNodeCount();
+        int getLevelCount();
 
 
         //Retrieval for experiment 3 & 4
@@ -48,8 +51,7 @@ class LLNode {
     friend class BPTree;
 
     public:
-        LLNode();
-        void insert(Record* recordPtr);
+        // LLNode();
 };
 
 
