@@ -32,6 +32,8 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
+		<Unit filename="BPTree.cpp" />
+		<Unit filename="BPTree.h" />
 		<Unit filename="b_plus_tree.cpp">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>

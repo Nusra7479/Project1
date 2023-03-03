@@ -27,11 +27,26 @@ public:
         curBlock.size=0;
     }
 
-    Record* addRecord(Record record) {
+    vector<Record*> getAllRecords() {
+        vector<Record*> result;
+        for (int i = 0; i < numBlocks; i++) {
+            Block block = blocks[i];
+            for (int j = 0; j < block.records.size(); j++) {
+                Record& record = block.records[j];
+                if (!record.deleted) {
+                    result.push_back(&record);
+                }
+            }
+        }
+        return result;
+    }
+
+
+    void addRecord(Record record) {
         //Check if disk capacity is full
         if (numBlocks >= MAX_BLOCKS) {
             cerr << "Error: Disk capacity is full" << endl;
-            return nullptr;
+            return;
         }
         // Check if the current block has sufficient space for another record
         if (curBlock.size + sizeof(record) <= BLOCK_SIZE) {
@@ -46,9 +61,6 @@ public:
             curBlock.size = sizeof(record);
             curBlock.records.push_back(record);
         }
-        // Return a pointer to the added record
-        Block& lastBlock = blocks.back();
-        return &lastBlock.records.back();
     }
 
     void finalizeBlocks() {

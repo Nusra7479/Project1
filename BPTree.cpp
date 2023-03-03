@@ -152,7 +152,7 @@ void BPTree::insert(int key, Record* recordPtr){
                 // std::cout << "once?" << endl;
 
                 Node* newRoot = new Node();
-                
+
 
                 newRoot->isLeaf = false;
                 newRoot->size = 1;

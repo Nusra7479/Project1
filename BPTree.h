@@ -1,5 +1,4 @@
-#ifndef B_PLUS_TREE_H_INCLUDED
-#define B_PLUS_TREE_H_INCLUDED
+#pragma once
 #include "storage.cpp"
 
 #include <vector>
@@ -54,6 +53,6 @@ class LLNode {
 };
 
 
-#endif // B_PLUS_TREE_H_INCLUDED
+
 
 

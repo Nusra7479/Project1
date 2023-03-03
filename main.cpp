@@ -4,7 +4,7 @@
 #include <cstring>
 #include <fstream>
 #include <sstream>
-#include "BPTree.cpp"
+#include "BPTree.h"
 
 using namespace std;
 
@@ -27,7 +27,7 @@ void readTSVFile(string filename, Disk& disk, BPTree& bptree) {
         record.averageRating = averageRating;
         record.numVotes = numVotes;
         disk.addRecord(record);
-        bptree.insert(numVotes, &record); // &record returns address of Record object on heap(?) instead of record address on disk.
+
     }
     infile.close();
 }
@@ -75,7 +75,7 @@ float getAvgRating (vector<Record*> b_targets){
 int main()
 {
     short int n = 15;
-    bool sorted = false;
+    bool sorted = true;
     //cout << "Hello world!" << n << endl;
     BPTree bpTree = BPTree(n);
     cout << "------------------------ Storage aspects and testing ------------------------" <<endl;
@@ -83,9 +83,9 @@ int main()
     // Read TSV
     string filename= "data.tsv";
     readTSVFile(filename, disk, bpTree);
-    std::cout << "ROOT:" << endl;
-    bpTree.showRoot();
-    std::cout << "CHILDREN" << endl;
+    //std::cout << "ROOT:" << endl;
+    //bpTree.showRoot();
+    //std::cout << "CHILDREN" << endl;
     // bpTree.showChildren();
     //BPTree has keys.
     int records;
@@ -93,7 +93,18 @@ int main()
     // sort em
     if (sorted)
         disk.sortRecords();
+    //disk.printRecords();
+    //cout<<"by ref"<<endl;
+    vector<Record*> allRecordPointers = disk.getAllRecords();
 
+    for (int i = 0; i < allRecordPointers.size(); i++) {
+        Record* recordPtr = allRecordPointers[i];
+        Record record = *recordPtr; // Dereference the pointer to get the actual record
+        //cout << "Record " << record.tconst << ": " << record.averageRating << " (" << record.numVotes << " votes)" << endl;
+    }
+    cout<<"Number of records in the vector: "<<allRecordPointers.size()<<endl; //just to show that indeed all record has been added
+    //cout<<"by order"<<endl;
+    //disk.printRecords();
     // Print to test again
     //disk.printRecords();
     cout << "------------------------ Experiment 1 ------------------------" <<endl;
