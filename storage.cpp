@@ -27,11 +27,11 @@ public:
         curBlock.size=0;
     }
 
-    void addRecord(Record record) {
+    Record* addRecord(Record record) {
         //Check if disk capacity is full
         if (numBlocks >= MAX_BLOCKS) {
             cerr << "Error: Disk capacity is full" << endl;
-            return;
+            return nullptr;
         }
         // Check if the current block has sufficient space for another record
         if (curBlock.size + sizeof(record) <= BLOCK_SIZE) {
@@ -46,6 +46,9 @@ public:
             curBlock.size = sizeof(record);
             curBlock.records.push_back(record);
         }
+        // Return a pointer to the added record
+        Block& lastBlock = blocks.back();
+        return &lastBlock.records.back();
     }
 
     void finalizeBlocks() {
