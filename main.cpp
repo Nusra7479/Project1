@@ -4,7 +4,7 @@
 #include <cstring>
 #include <fstream>
 #include <sstream>
-#include "BPTree.cpp"
+#include "BPTree.h"
 
 using namespace std;
 
@@ -27,7 +27,7 @@ void readTSVFile(string filename, Disk& disk, BPTree& bptree) {
         record.averageRating = averageRating;
         record.numVotes = numVotes;
         disk.addRecord(record);
-        bptree.insert(numVotes, &record); // &record returns address of Record object on heap(?) instead of record address on disk.
+        //bptree.insert(numVotes, &record); // &record returns address of Record object on heap(?) instead of record address on disk.
     }
     infile.close();
 }
