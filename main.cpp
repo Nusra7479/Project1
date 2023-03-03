@@ -93,9 +93,14 @@ int main()
     // sort em
     if (sorted)
         disk.sortRecords();
+
     // Print to test again
     //disk.printRecords();
     cout << "------------------------ Experiment 1 ------------------------" <<endl;
+    cout<<"Total number of records: "<<disk.numberOfRecords()<<endl;
+    cout<<"Size of a record: "<<disk.sizeOfRecord()<<endl;
+    cout<<"Number of records per block: "<<disk.numberOfRecordsPerBlock()<<endl;
+    cout<<"Number of blocks for storing the data: "<<disk.numberOfBlocksUsed()<<endl;
     cout << endl;
 
     cout << "------------------------ Experiment 2 ------------------------" <<endl;

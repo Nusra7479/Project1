@@ -16,6 +16,7 @@ struct Record {
     char tconst[10];
     float averageRating;
     int numVotes;
+    bool deleted=false;
 };
 
 // Class to represent disk storage
@@ -55,20 +56,48 @@ public:
         }
     }
 
-    void printRecords() {
+    void printRecords() { //only prints undeleted records
         cout<<"Printing records..."<<endl;
         for (int i = 0; i < numBlocks; i++) {
             cout<<"Printing block "<<i+1<<endl;
             Block block = blocks[i];
             for (int j = 0; j < block.records.size(); j++) {
                 Record record = block.records[j];
-                cout << "Record " << record.tconst << ": " << record.averageRating << " (" << record.numVotes << " votes)" << endl;
+                if(!record.deleted){
+                    cout << "Record " << record.tconst << ": " << record.averageRating << " (" << record.numVotes << " votes)" << endl;
+                }
             }
         }
         cout<<"Records printed!"<<endl;
     }
 
-    void sortRecords() {
+    int numberOfRecords(){
+        int numRecords=0;
+        for (int i = 0; i < numBlocks; i++) {
+            Block block = blocks[i];
+            for (int j = 0; j < block.records.size(); j++) {
+                Record record = block.records[j];
+                if(!record.deleted){
+                    numRecords++;
+                }
+            }
+        }
+        return numRecords;
+    }
+
+    int sizeOfRecord(){
+        return sizeof(Record);
+    }
+
+    int numberOfRecordsPerBlock(){
+        return blocks[0].records.size();
+    }
+
+    int numberOfBlocksUsed(){
+        return blocks.size();
+    }
+
+    void sortRecords() { //i left it to sort deleted records as well cause we aren't rlly deleting it anws?
         cout<<"Sorting records..."<<endl;
         // Combine all blocks into a single vector
         vector<Record> records;
@@ -95,14 +124,14 @@ public:
         cout<<"Records sorted!"<<endl;
     }
 
-    void searchKey(int minKey, int maxKey) {
+    void searchKey(int minKey, int maxKey) { //added to check if record has been deleted
         ////start search
         int numOfRecords = 0;
          for (int i = 0; i < numBlocks; i++) {
             Block block = blocks[i];
             for (int j = 0; j < block.records.size(); j++) {
                 Record record = block.records[j];
-                if (record.numVotes >= minKey && record.numVotes <= maxKey){
+                if (record.numVotes >= minKey && record.numVotes <= maxKey && !record.deleted){
                     numOfRecords++;
                 }
                 if (record.numVotes > maxKey){
@@ -125,7 +154,7 @@ public:
             Block block = blocks[i];
             for (int j = 0; j < block.records.size(); j++) {
                 Record record = block.records[j];
-                if (record.numVotes >= minNumVotes && record.numVotes <= maxNumVotes) {
+                if (record.numVotes >= minNumVotes && record.numVotes <= maxNumVotes && !record.deleted) {
                     result.push_back(record);
                 }
             }
@@ -135,7 +164,7 @@ public:
         return result;
     }
 
-    int getDiskIO(vector<Record*> b_targets){
+    int getDiskIO(vector<Record*> b_targets){ //no need to check if record is deleted because it will be accessed anws
         int dataBlocksAccessed;
 
         for (int i = 0; i < numBlocks; i++) {
@@ -152,7 +181,21 @@ public:
         }
         cout << "The number of data blocks the process accesses: "<< dataBlocksAccessed << endl;
         return dataBlocksAccessed;
-}
+    }
+
+    void deleteRecord(Record* recordPtr) {
+        // check if record has already been deleted
+        if (recordPtr->deleted==true) {
+            cerr << "Error: Record not found" << endl;
+            return;
+        }
+
+        // Else, we mark the record as deleted
+        recordPtr->numVotes = -1;
+        recordPtr->deleted = true;
+
+    }
+
 
 
 
