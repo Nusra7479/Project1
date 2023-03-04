@@ -175,7 +175,12 @@ public:
                     auto stop = high_resolution_clock::now();
                     auto runningTime = duration_cast<microseconds>(stop - start);
                     cout << "The number of data blocks that would be accessed by a brute-force linear scan method: " << numDataBlocks << endl;
-                    cout << "The running time of the retrieval process (brute-force linear scan): " << runningTime.count() << " ms" << endl;
+                    if (runningTime.count() == 0){
+                        auto runningTime = duration_cast<nanoseconds>(stop - start);
+                        cout << "The running time of the retrieval process (B+ Tree): " << runningTime.count() << " ns" << endl;
+                    }
+                    else
+                        cout << "The running time of the retrieval process (B+ Tree): " << runningTime.count() << " ms" << endl;
                     cout << "The number of records (brute-force linear scan): " << numOfRecords << endl;
                     return;
                 }
@@ -202,7 +207,12 @@ public:
         auto runningTime = duration_cast<microseconds>(stop - start);
 
         cout << "The number of data blocks that would be accessed by a brute-force linear scan method: " << i << endl;
-        cout << "The running time of the retrieval process (brute-force linear scan): " << runningTime.count() << " ms" << endl;
+        if (runningTime.count() == 0){
+            auto runningTime = duration_cast<nanoseconds>(stop - start);
+            cout << "The running time of the retrieval process (B+ Tree): " << runningTime.count() << " ns" << endl;
+        }
+        else
+            cout << "The running time of the retrieval process (B+ Tree): " << runningTime.count() << " ms" << endl;
         cout << "The number of records (brute-force linear scan): " << result.size() << endl;
         return result;
     }

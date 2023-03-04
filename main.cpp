@@ -4,7 +4,6 @@
 #include <cstring>
 #include <fstream>
 #include <sstream>
-#include <chrono>
 #include "BPTree.h"
 
 using namespace std;
@@ -30,7 +29,7 @@ void readTSVFile(string filename, Disk& disk, BPTree& bptree) {
         record.numVotes = numVotes;
         disk.addRecord(record);
     }
-    disk.finalizeBlocks(); 
+    disk.finalizeBlocks();
     infile.close();
 }
 
@@ -140,7 +139,7 @@ int main()
     b_targets3 = bpTree.searchKeyRange(500, 500);
     disk.getDiskIO(b_targets3);
     getAvgRating(b_targets3);
-
+    cout << endl;
     ////Search in Storage
     if (sorted)
         disk.searchKey(500, 500);
@@ -156,7 +155,7 @@ int main()
     b_targets4 = bpTree.searchKeyRange(30000, 40000);
     disk.getDiskIO(b_targets4);
     getAvgRating(b_targets4);
-
+    cout << endl;
     ////Search in Storage
     if (sorted)
         disk.searchKey(30000, 40000);
@@ -167,6 +166,14 @@ int main()
     }
     cout << endl;
     cout << "------------------------ Experiment 5 ------------------------" <<endl;
+    if (sorted)
+        disk.searchKey(1000, 1000);
+    else{
+        vector<Record> targets5;
+        targets5=disk.searchRecord(1000, 1000);
+        //printRecords(targets5);
+    }
+    cout << endl;
     auto start = high_resolution_clock::now();
     bpTree.deleteKey(1000); // real experiment
     auto stop = high_resolution_clock::now();
@@ -174,16 +181,16 @@ int main()
     cout << "Number of nodes of the B+ tree: " << bpTree.getNodeCount() << endl;
     cout << "Number of levels of the B+ tree: " << bpTree.getLevelCount() << endl;
     cout << "Content of the root node: ";
-    cout << "The running time of the retrieval process (B+ Tree): " << runningTime.count() << " ms" << endl;
     bpTree.showRoot();
-    if (sorted)
-        disk.searchKey(500, 500);
-    else{
-        vector<Record> targets3;
-        targets3=disk.searchRecord(500, 500);
-        //printRecords(targets3);
+    if (runningTime.count() == 0){
+        auto runningTime = duration_cast<nanoseconds>(stop - start);
+        cout << "The running time of the deletion process (B+ Tree): " << runningTime.count() << " ns" << endl;
     }
+     else
+        cout << "The running time of the deletion process (B+ Tree): " << runningTime.count() << " ms" << endl;
     cout << endl;
 
-    return 0; 
+
+
+    return 0;
 }

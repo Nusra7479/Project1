@@ -294,12 +294,18 @@ vector <Record *> BPTree::searchKeyRange(int minNumVotes, int maxNumVotes) { //T
     auto stop = high_resolution_clock::now();
     auto runningTime = duration_cast<microseconds>(stop - start);
 
+
     //// print results
     //cout << "------------------------ Experiment 3 ------------------------" <<endl;
     cout << "The number of index nodes the process accesses: " << indexNodesAccessed << endl;
     //cout << "The number of data blocks the process accesses: "<< dataBlocksAccessed << endl;
     //cout << "The average of �averageRating�s� of the records that are returned: " << avgRating << endl;
-    cout << "The running time of the retrieval process (B+ Tree): " << runningTime.count() << " ms" << endl;
+    if (runningTime.count() == 0){
+        auto runningTime = duration_cast<nanoseconds>(stop - start);
+        cout << "The running time of the retrieval process (B+ Tree): " << runningTime.count() << " ns" << endl;
+    }
+    else
+        cout << "The running time of the retrieval process (B+ Tree): " << runningTime.count() << " ms" << endl;
     return result;
 
     }
@@ -369,19 +375,19 @@ void BPTree::deleteKey(int key) {
     }
 
     // if at least minimum keys, then just need to update parents if leftmost (min) key was deleted
-    if (cursor->size >= (this->maxKeys + 1) / 2) {  
+    if (cursor->size >= (this->maxKeys + 1) / 2) {
         if (i == 0) {
             int newMin = cursor->keys[0];
             propagateMin(cursor->parent, newMin);
-        }    
+        }
         return;
     }
 
-    // else, the node has less than the minimum keys. try to borrow from siblings. 
+    // else, the node has less than the minimum keys. try to borrow from siblings.
     // try left sibling first
     Node* leftSibling = getLeftSibling(cursor);
     if (leftSibling && leftSibling->size > (this->maxKeys + 1) / 2) { // short circuit evaluation, safe
-        
+
         // get key and pointer
         int borrowedKey = leftSibling->keys.back(); // last key
         leftSibling->keys.pop_back();
@@ -421,15 +427,15 @@ void BPTree::deleteKey(int key) {
         if (i == 0) { // of current node if leftmost key was deleted
             int newMin = cursor->keys[0];
             propagateMin(cursor->parent, newMin);
-        }    
+        }
         propagateMin(cursor->parent, rightSibling->keys.front()); // of the right sibling borrowed from
         return;
 
     }
 
-    // if can't borrow from sibling, then merge with sibling. always possible if can't borrow bec sibling would be min. 
-    // merging with sibling causes 1 key to be deleted in the parent 
-    // (which one? -> the one in between the 2 pointers: if originalRightMin == key[i], then delete key[i]) 
+    // if can't borrow from sibling, then merge with sibling. always possible if can't borrow bec sibling would be min.
+    // merging with sibling causes 1 key to be deleted in the parent
+    // (which one? -> the one in between the 2 pointers: if originalRightMin == key[i], then delete key[i])
 
     // try left. after merging, the min of merged node is the min of the left node, so no propagation needed
     if (leftSibling) { // cursor is right node in merging
@@ -437,7 +443,7 @@ void BPTree::deleteKey(int key) {
         int rightMin = cursor->keys[0];
 
         // update min (should stop in direct parent only) for consistency. however key is deleted anyway.
-        if (i == 0) { 
+        if (i == 0) {
             propagateMin(cursor->parent, rightMin);
         }
 
@@ -464,10 +470,10 @@ void BPTree::deleteKey(int key) {
             int newMin = cursor->keys[0];
             propagateMin(cursor->parent, newMin);
         }
-    
+
         // shift everything to left child
         cursor->keys.insert(cursor->keys.end(), rightSibling->keys.begin(), rightSibling->keys.end());
-        cursor->ptrs.pop_back(); // remove left node's ptr to next node 
+        cursor->ptrs.pop_back(); // remove left node's ptr to next node
         cursor->ptrs.insert(cursor->ptrs.end(), rightSibling->ptrs.begin(), rightSibling->ptrs.end());
         cursor->size = cursor->keys.size();
 
@@ -495,13 +501,13 @@ void BPTree::propagateMin(Node* nodePtr, int min) {
     }
 
     // if min is less than the first key, then the current node's keys do not need to be updated.
-    // the min of the entire subtree rooted at the current node has increased, and the parent must be updated. 
+    // the min of the entire subtree rooted at the current node has increased, and the parent must be updated.
     if (min < nodePtr->keys[0]) {
         propagateMin(nodePtr->parent, min);
         return;
     }
 
-    // iterate through parent keys. if min < currKey, then the element to the left of currKey should be oldMin. 
+    // iterate through parent keys. if min < currKey, then the element to the left of currKey should be oldMin.
     int i;
     for (i = 1; i < nodePtr->size + 1; i++) {
         if (i == nodePtr->size) { // reached the end of keys, index is left of end of keys i.e. last element
@@ -518,7 +524,7 @@ void BPTree::propagateMin(Node* nodePtr, int min) {
     // printf("TODO in propagate w/ min = %d\n", min);
     // printf("TODO index = %d\n", index);
     // printf("keys[index] = %d\n", nodePtr->keys[index]);
-    nodePtr->keys[index] = min; 
+    nodePtr->keys[index] = min;
     return;
 
 }
@@ -527,7 +533,7 @@ void BPTree::propagateMin(Node* nodePtr, int min) {
 // **if it doesn't exist, then returns nullptr**
 Node* BPTree::getLeftSibling(Node* nodePtr) {
     Node* parentNode = nodePtr->parent;
-    if (!parentNode) { // if no parent node, then no siblings 
+    if (!parentNode) { // if no parent node, then no siblings
         return nullptr;
     }
     for (int i = 1; i < parentNode->size+1; i++) {
@@ -542,7 +548,7 @@ Node* BPTree::getLeftSibling(Node* nodePtr) {
 // **if it doesn't exist, then returns nullptr**
 Node* BPTree::getRightSibling(Node* nodePtr) {
     Node* parentNode = nodePtr->parent;
-    if (!parentNode) { // if no parent node, then no siblings 
+    if (!parentNode) { // if no parent node, then no siblings
         return nullptr;
     }
     for (int i = 0; i < parentNode->size; i++) {
@@ -555,7 +561,7 @@ Node* BPTree::getRightSibling(Node* nodePtr) {
 
 // this function deletes a key and a pointer from an internal node // TODO: verify that this never changes the min key in a subtree and hence doesn't call propagateMin
 void BPTree::deleteInternal(int key, Node* nodePtr, Node* child) {
-    
+
     // debug
     // printf("TODO in deleteinternal. key: %d\n", key);
     // printf("child:\n");
@@ -580,7 +586,7 @@ void BPTree::deleteInternal(int key, Node* nodePtr, Node* child) {
     // delete key and key's right ptr
     nodePtr->keys.erase(nodePtr->keys.begin() + i);
     nodePtr->size--;
-    nodePtr->ptrs.erase(nodePtr->ptrs.begin() + i + 1);  
+    nodePtr->ptrs.erase(nodePtr->ptrs.begin() + i + 1);
 
     // if this is root, then min is 1. if min is < 1 (0), can delete root and newRoot is child
     if (!nodePtr->parent) {
@@ -603,7 +609,7 @@ void BPTree::deleteInternal(int key, Node* nodePtr, Node* child) {
 
     // try left sibling first
     if (leftSibling && leftSibling->size > this->maxKeys / 2) { // short circuit evaluation, safe
-        
+
         // get key and pointer
         int borrowedKey = leftSibling->keys.back(); // last key
         leftSibling->keys.pop_back();
@@ -619,7 +625,7 @@ void BPTree::deleteInternal(int key, Node* nodePtr, Node* child) {
 
     // try right sibling next
     if (rightSibling && rightSibling->size > this->maxKeys / 2) { // short circuit evaluation, safe
-        
+
         // get key and pointer
         int borrowedKey = leftSibling->keys.front(); // first key
         rightSibling->keys.erase(rightSibling->keys.begin());
@@ -636,7 +642,7 @@ void BPTree::deleteInternal(int key, Node* nodePtr, Node* child) {
     // if can't borrow, merge with sibling // !! in internal node, must pull down 1 key from the parent
     // try left first
     if (leftSibling) { // curr node is right node in merge
-        
+
         Node* parentPtr = nodePtr->parent;
         int j;
         for (j = 1; j < parentPtr->size+1; j++) {
@@ -658,7 +664,7 @@ void BPTree::deleteInternal(int key, Node* nodePtr, Node* child) {
         for (int i = 0; i < nodePtr->size + 1; i++) {
             ((Node*) nodePtr->ptrs[i])->parent = leftSibling;
         }
-        
+
         // recurse on parent
         deleteInternal(demotedKey, parentPtr, leftSibling);
         return;
@@ -689,7 +695,7 @@ void BPTree::deleteInternal(int key, Node* nodePtr, Node* child) {
         for (int i = 0; i < nodePtr->size + 1; i++) {
             ((Node*) rightSibling->ptrs[i])->parent = nodePtr;
         }
-        
+
         // recurse on parent
         deleteInternal(demotedKey, parentPtr, nodePtr);
         return;
@@ -749,20 +755,20 @@ void BPTree::display(Node* current)
     while (!q.empty()) {
         int l;
         l = q.size();
- 
+
         for (int i = 0; i < l; i++) {
             Node* tNode = q.front();
             q.pop();
- 
+
             for (int j = 0; j < tNode->keys.size(); j++)
                 if (tNode != NULL)
                     cout << tNode->keys[j] << " ";
                 cout << "[" << tNode->size << "] ";
- 
+
             for (int j = 0; j < tNode->ptrs.size(); j++)
                 if (tNode->ptrs[j] != NULL && (!tNode->isLeaf))
                     q.push((Node*) tNode->ptrs[j]);
- 
+
             cout << "\t";
         }
         cout << endl;
