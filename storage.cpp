@@ -196,16 +196,19 @@ public:
 
     int getDiskIO(vector<Record*> b_targets){ //no need to check if record is deleted because it will be accessed anws
         int dataBlocksAccessed;
-
+        bool terminateLoop = false;
         for (int i = 0; i < numBlocks; i++) {
             for (int j = 0; j < blocks[i].records.size(); j++) {
                 for (int k = 0; k < b_targets.size(); k++){
                      if (b_targets[k]->tconst == blocks[i].records[j].tconst){
                         dataBlocksAccessed++;
+                        terminateLoop = true;
                         break;
                     }
                 }
+                if (terminateLoop) break;
             }
+            terminateLoop = false;
         }
         cout << "The number of data blocks the process accesses: "<< dataBlocksAccessed << endl;
         return dataBlocksAccessed;
