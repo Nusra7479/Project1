@@ -58,7 +58,7 @@ void BPTree::insert(int key, Record* recordPtr){
             if (key > curr->keys[i]) {
                 continue;
             }
-            
+
             // Duplicate: insert into LL
             if (key == curr->keys[i]) {
                 LLNode* currentNode = (LLNode*) curr->ptrs[i];
@@ -96,7 +96,7 @@ void BPTree::insert(int key, Record* recordPtr){
 
             inserted = true;
         }
-        
+
         if (curr->size > this->maxKeys) {
             int split = (curr->size + 1)/ 2;
             vector<int> leftKeys(curr->keys.begin(), curr->keys.begin() + split);
@@ -120,7 +120,7 @@ void BPTree::insert(int key, Record* recordPtr){
             curr->ptrs = leftPtrs;
             curr->keys = leftKeys;
             curr->size = leftSize;
-            
+
             if (curr == this->root) {
                 Node* newRoot = new Node();
                 nodeCount++;
@@ -180,9 +180,9 @@ void BPTree::insertInternal(int key, Node* curr, Node* child) {
 
         newInternal->keys = rightKeys;
         newInternal->ptrs = rightPtrs;
-        newInternal->size = rightKeys.size();  
+        newInternal->size = rightKeys.size();
         newInternal->parent = curr->parent;
-        
+
         curr->keys = leftKeys;
         curr->ptrs = leftPtrs;
         curr->size = leftKeys.size();
@@ -190,7 +190,7 @@ void BPTree::insertInternal(int key, Node* curr, Node* child) {
         for (int i = 0; i < newInternal->size + 1; i++) {
             Node* child = (Node*) newInternal->ptrs[i];
             child->parent = newInternal;
-        }      
+        }
 
         if (curr == this->root) {
             Node* newRoot = new Node();
@@ -200,7 +200,7 @@ void BPTree::insertInternal(int key, Node* curr, Node* child) {
             newRoot->keys.push_back(promotedKey);
             newRoot->ptrs.push_back(curr);
             newRoot->ptrs.push_back(newInternal);
-            newRoot->parent = nullptr;            
+            newRoot->parent = nullptr;
             newInternal->parent = newRoot;
             curr->parent = newRoot;
             this->root = newRoot;
@@ -298,7 +298,7 @@ vector <Record *> BPTree::searchKeyRange(int minNumVotes, int maxNumVotes) { //T
     cout << "The number of index nodes the process accesses: " << indexNodesAccessed << endl;
     //cout << "The number of data blocks the process accesses: "<< dataBlocksAccessed << endl;
     //cout << "The average of �averageRating�s� of the records that are returned: " << avgRating << endl;
-    cout << "The running time of the retrieval process: " << runningTime.count() << endl;
+    cout << "The running time of the retrieval process: " << runningTime.count() << " ms" << endl;
     return result;
 
     }
@@ -354,19 +354,19 @@ void BPTree::deleteKey(int key) {
     }
 
     // if at least minimum keys, then just need to update parents if leftmost (min) key was deleted
-    if (cursor->size >= (this->maxKeys + 1) / 2) {  
+    if (cursor->size >= (this->maxKeys + 1) / 2) {
         if (i == 0) {
             int newMin = cursor->keys[0];
             propagateMin(cursor->parent, newMin);
-        }    
+        }
         return;
     }
 
-    // else, the node has less than the minimum keys. try to borrow from siblings. 
+    // else, the node has less than the minimum keys. try to borrow from siblings.
     // try left
     Node* leftSibling = getLeftSibling(cursor, oldMin);
     if (leftSibling && leftSibling->size > (this->maxKeys + 1) / 2) { // short circuit evaluation, safe
-        
+
         // get key and pointer
         int borrowedKey = leftSibling->keys.back(); // last key
         leftSibling->keys.pop_back();
@@ -386,7 +386,7 @@ void BPTree::deleteKey(int key) {
     // try right
     Node* rightSibling = getRightSibling(cursor, oldMin);
     if (rightSibling && rightSibling->size > (this->maxKeys + 1) / 2) { // short circuit evaluation, safe
-        
+
         // get key and pointer
         int borrowedKey = rightSibling->keys.front(); // 1st key
         rightSibling->keys.erase(rightSibling->keys.begin());
@@ -403,7 +403,7 @@ void BPTree::deleteKey(int key) {
 
     }
 
-    // if can't borrow from sibling, then merge with sibling. always possible if can't borrow bec sibling would be min. 
+    // if can't borrow from sibling, then merge with sibling. always possible if can't borrow bec sibling would be min.
     // i guess u can choose either sibling then
     // merging with sibling causes 1 key to be deleted in the parent (which one?) deleteInternal?
     // kind of same procedure: check siblings for same parent and > min, borrow if can
@@ -426,12 +426,12 @@ void BPTree::propagateMin(Node* nodePtr, int min) {
     }
 
     // if min is less than the first key, then the current node's keys do not need to be updated.
-    // the min of the entire subtree rooted at the current node has increased, and the parent must be updated. 
+    // the min of the entire subtree rooted at the current node has increased, and the parent must be updated.
     if (min < nodePtr->keys[0]) {
         propagateMin(nodePtr->parent, min);
     }
 
-    // iterate through parent keys. if min < currKey, then the element to the left of currKey should be oldMin. 
+    // iterate through parent keys. if min < currKey, then the element to the left of currKey should be oldMin.
     int i;
     for (i = 1; i < nodePtr->size + 1; i++) {
         if (i == nodePtr->size) { // reached the end of keys, index is left of end of keys i.e. last element
@@ -445,7 +445,7 @@ void BPTree::propagateMin(Node* nodePtr, int min) {
     int index = i - 1;
 
     // if min is different from old value, update. if not, then no change made. // should always be different
-    nodePtr->keys[index] = min; 
+    nodePtr->keys[index] = min;
     return;
 
 }
@@ -454,11 +454,11 @@ void BPTree::propagateMin(Node* nodePtr, int min) {
 // **if it doesn't exist, then returns nullptr**
 Node* BPTree::getLeftSibling(Node* nodePtr, int min) {
     Node* parentNode = nodePtr->parent;
-    if (!parentNode) { // if no parent node, then no siblings 
+    if (!parentNode) { // if no parent node, then no siblings
         return nullptr;
     }
     if (min < parentNode->keys[0]) { // leftmost child, no left sibling
-        return nullptr;        
+        return nullptr;
     }
     for (int i = 0; i < parentNode->size; i++) {
         if (min == parentNode->keys[i]) {
@@ -474,7 +474,7 @@ Node* BPTree::getLeftSibling(Node* nodePtr, int min) {
 // **if it doesn't exist, then returns nullptr**
 Node* BPTree::getRightSibling(Node* nodePtr, int min) {
     Node* parentNode = nodePtr->parent;
-    if (!parentNode) { // if no parent node, then no siblings 
+    if (!parentNode) { // if no parent node, then no siblings
         return nullptr;
     }
     if (min == parentNode->keys.back()) { // rightmost chlid, no right sibling

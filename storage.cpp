@@ -4,8 +4,10 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
+#include <chrono>
 
 using namespace std;
+using namespace std::chrono;
 
 const int BLOCK_SIZE = 200; // Size of each block in bytes
 const int DISK_CAPACITY = 200 *1024 * 1024; // 200 MB
@@ -140,6 +142,7 @@ public:
     }
 
     void searchKey(int minKey, int maxKey) { //added to check if record has been deleted
+        auto start = high_resolution_clock::now();
         ////start search
         int numOfRecords = 0;
          for (int i = 0; i < numBlocks; i++) {
@@ -154,7 +157,12 @@ public:
                     int numDataBlocks = i;
                     if (j == 0)
                         numDataBlocks = i-1;
+
+                    //// stop timer & print results
+                    auto stop = high_resolution_clock::now();
+                    auto runningTime = duration_cast<microseconds>(stop - start);
                     cout << "The number of data blocks that would be accessed by a brute-force linear scan method: " << numDataBlocks << endl;
+                    cout << "The running time of the retrieval process (brute-force linear scan): " << runningTime.count() << " ms" << endl;
                     cout << "The number of records (brute-force linear scan): " << numOfRecords << endl;
                     return;
                 }
@@ -163,6 +171,8 @@ public:
     }
 
     vector<Record> searchRecord(int minNumVotes, int maxNumVotes) { //returns a vector consisting all records with target numVotes
+        auto start = high_resolution_clock::now();
+
         int i;
         vector<Record> result;
         for (i = 0; i < numBlocks; i++) {
@@ -174,7 +184,12 @@ public:
                 }
             }
         }
+
+        auto stop = high_resolution_clock::now();
+        auto runningTime = duration_cast<microseconds>(stop - start);
+
         cout << "The number of data blocks that would be accessed by a brute-force linear scan method: " << i << endl;
+        cout << "The running time of the retrieval process (brute-force linear scan): " << runningTime.count() << " ms" << endl;
         cout << "The number of records (brute-force linear scan): " << result.size() << endl;
         return result;
     }
