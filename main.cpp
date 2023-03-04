@@ -87,13 +87,13 @@ int main()
     // string filename = "data-small.tsv"; // first 60 records, with first record numVotes changed to 16
     // string filename = "data-lecture.tsv";
     readTSVFile(filename, disk, bpTree);
-
+    disk.countNumOfRecordsIncludingDeleted();
     // disk.printRecords();
 
     // Sort records
     if (sorted)
-         disk.sortRecords(); // makes the last block not be counted. problem with sorting? 
-
+         disk.sortRecords();
+    disk.countNumOfRecordsIncludingDeleted();
     // disk.printRecords();
 
     // Get all records on disk for insertion in BPTree

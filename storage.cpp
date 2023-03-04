@@ -43,6 +43,18 @@ public:
         return result;
     }
 
+    int countNumOfRecordsIncludingDeleted(){
+        int numRecords=0;
+        for (int i = 0; i < numBlocks; i++) {
+            Block block = blocks[i];
+            for (int j = 0; j < block.records.size(); j++) {
+                numRecords++;
+            }
+        }
+        cout<<"Number of records (including deleted) on Disk: "<<numRecords<<endl;
+        return numRecords;
+    }
+
 
     void addRecord(Record record) {
         //Check if disk capacity is full
@@ -138,6 +150,7 @@ public:
         for (int i = 0; i < records.size(); i++) {
             addRecord(records[i]);
         }
+        finalizeBlocks();
         cout<<"Records sorted!"<<endl;
     }
 
@@ -196,16 +209,19 @@ public:
 
     int getDiskIO(vector<Record*> b_targets){ //no need to check if record is deleted because it will be accessed anws
         int dataBlocksAccessed;
-
+        bool terminateLoop = false;
         for (int i = 0; i < numBlocks; i++) {
             for (int j = 0; j < blocks[i].records.size(); j++) {
                 for (int k = 0; k < b_targets.size(); k++){
                      if (b_targets[k]->tconst == blocks[i].records[j].tconst){
                         dataBlocksAccessed++;
+                        terminateLoop = true;
                         break;
                     }
                 }
+                if (terminateLoop) break;
             }
+            terminateLoop = false;
         }
         cout << "The number of data blocks the process accesses: "<< dataBlocksAccessed << endl;
         return dataBlocksAccessed;
