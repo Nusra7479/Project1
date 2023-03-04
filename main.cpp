@@ -166,13 +166,20 @@ int main()
     }
     cout << endl;
     cout << "------------------------ Experiment 5 ------------------------" <<endl;
-    // bpTree.deleteKey(1000); // real experiment
-    bpTree.deleteKey(6042); // testing
+    bpTree.deleteKey(1000); // real experiment
+    // bpTree.deleteKey(6042); // testing
     cout << "Number of nodes of the B+ tree: " << bpTree.getNodeCount() << endl;
     cout << "Number of levels of the B+ tree: " << bpTree.getLevelCount() << endl;
     cout << "Content of the root node: ";
     bpTree.showRoot();
+    if (sorted)
+        disk.searchKey(500, 500);
+    else{
+        vector<Record> targets3;
+        targets3=disk.searchRecord(500, 500);
+        //printRecords(targets3);
+    }
     cout << endl;
 
-    return 0;
+    return 0; 
 }
