@@ -78,9 +78,9 @@ int main()
     short int n = 15;
     bool sorted = true;
 
-    BPTree bpTree = BPTree(n);
     cout << "------------------------ Storage aspects and testing ------------------------" <<endl;
     Disk disk;
+    BPTree bpTree = BPTree(n, disk);
 
     // Read TSV to disk
     string filename = "data.tsv";

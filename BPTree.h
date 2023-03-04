@@ -20,11 +20,11 @@ class BPTree {
     Node *root;
     int maxKeys; // maximum no of keys in a node
     int nodeCount;
+    Disk disk; // the associated disk
 
     public:
         BPTree();
-        BPTree(short int mK);
-
+        BPTree(short int mK, Disk dsk);
 
         void setRoot(Node *root);
         void insertInternal(int key, Node *parent, Node *child);
@@ -40,6 +40,12 @@ class BPTree {
         //Retrieval for experiment 3 & 4
         //vector<void *> searchKey(int key);
         vector<Record *> searchKeyRange(int keyMin, int keyMax);
+
+        // experiment 5: deletion
+        void deleteKey(int key);
+        void propagateMin(Node* nodePtr, int min);
+        Node* getLeftSibling(Node* nodePtr, int min);
+        Node* getRightSibling(Node* nodePtr, int min);
 
         void display(Node *root);
         Node *getRoot();
