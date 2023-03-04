@@ -4,6 +4,7 @@
 #include <cstring>
 #include <fstream>
 #include <sstream>
+#include <chrono>
 #include "BPTree.h"
 
 using namespace std;
@@ -166,11 +167,14 @@ int main()
     }
     cout << endl;
     cout << "------------------------ Experiment 5 ------------------------" <<endl;
+    auto start = high_resolution_clock::now();
     bpTree.deleteKey(1000); // real experiment
-    // bpTree.deleteKey(6042); // testing
+    auto stop = high_resolution_clock::now();
+    auto runningTime = duration_cast<microseconds>(stop - start);
     cout << "Number of nodes of the B+ tree: " << bpTree.getNodeCount() << endl;
     cout << "Number of levels of the B+ tree: " << bpTree.getLevelCount() << endl;
     cout << "Content of the root node: ";
+    cout << "The running time of the retrieval process (B+ Tree): " << runningTime.count() << " ms" << endl;
     bpTree.showRoot();
     if (sorted)
         disk.searchKey(500, 500);
