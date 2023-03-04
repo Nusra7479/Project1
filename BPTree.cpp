@@ -236,7 +236,6 @@ vector <Record *> BPTree::searchKeyRange(int minNumVotes, int maxNumVotes) { //T
     ////traverse until we find the leaf node pertaining the minNumVotes
     while (cursor->isLeaf == false){
         for (int i = 0; i < cursor->size; i++) {
-            // std::cout << "HELLO" << endl;
             if (minNumVotes < cursor->keys[i]) {
                 cursor = (Node*) cursor->ptrs[i]; // if searchKey < NodeKey, go to LHS Node
                 indexNodesAccessed++;
@@ -244,8 +243,6 @@ vector <Record *> BPTree::searchKeyRange(int minNumVotes, int maxNumVotes) { //T
             }
 
             if (i == cursor->size - 1) {
-                // std::cout << "SPECIAL:" << endl;
-                // std::cout << cursor << endl;
                 cursor = (Node*) cursor->ptrs[i + 1];
                 indexNodesAccessed++;
                 break;
@@ -304,8 +301,6 @@ vector <Record *> BPTree::searchKeyRange(int minNumVotes, int maxNumVotes) { //T
 
     }
 
-// TODO: check edge cases: maybe doesnt matter though
-// 1. deletion from the root, esp deleting all elements
 void BPTree::deleteKey(int key) {
 
     // initialise cursor
@@ -514,10 +509,6 @@ void BPTree::propagateMin(Node* nodePtr, int min) {
     }
     int index = i - 1;
 
-    // if min is different from old value, update. if not, then no change made. // should always be different currently
-    // printf("TODO in propagate w/ min = %d\n", min);
-    // printf("TODO index = %d\n", index);
-    // printf("keys[index] = %d\n", nodePtr->keys[index]);
     nodePtr->keys[index] = min; 
     return;
 
@@ -553,19 +544,13 @@ Node* BPTree::getRightSibling(Node* nodePtr) {
     return nullptr; // node is rightmost child, no siblings
 }
 
-// this function deletes a key and a pointer from an internal node // TODO: verify that this never changes the min key in a subtree and hence doesn't call propagateMin
+// this function deletes a key and a pointer from an internal node 
 void BPTree::deleteInternal(int key, Node* nodePtr, Node* child) {
-    
-    // debug
-    // printf("TODO in deleteinternal. key: %d\n", key);
-    // printf("child:\n");
-    // display(child);
 
     // find key
     int i;
     for (i = 0 ; i < nodePtr->size; i++) {
         int currKey = nodePtr->keys[i];
-        // printf("TODO: node has key %d\n", nodePtr->keys[i]);
         if (key == currKey) {
             break;
         }
@@ -667,7 +652,6 @@ void BPTree::deleteInternal(int key, Node* nodePtr, Node* child) {
 
     // try right next
     if (rightSibling) { // curr node is left node in merge
-        // printf("TODO in deleteinternal, trying to merge with right sibling\n");
         Node* parentPtr = nodePtr->parent;
         int j;
         for (j = 0; j < parentPtr->size; j++) {
@@ -675,7 +659,7 @@ void BPTree::deleteInternal(int key, Node* nodePtr, Node* child) {
                 break;
             }
         }
-        int demotedKey = parentPtr->keys[j]; // todo check
+        int demotedKey = parentPtr->keys[j]; 
 
         // shift everything to left child
         nodePtr->keys.push_back(demotedKey);
@@ -705,21 +689,7 @@ Node* BPTree::getRoot() {
 void BPTree::showRoot() {
     Node* root = this->root;
     for (int i = 0; i < root->size; i++) {
-        std::cout << root->keys[i] << ", ";
-    }
-    std::cout << endl;
-}
-
-// Debug function to show root's children keys
-void BPTree::showChildren() {
-    Node* root = this->root;
-    for (int i = 0; i < root->ptrs.size(); i++) {
-        std::cout << "Child " << i << ": ";
-        Node* child = (Node*) root->ptrs[i];
-        for (int j = 0; j < child->keys.size(); j++) {
-            std::cout << child->keys[j] << ", ";
-        }
-        std::cout << endl;
+        std::cout << root->keys[i] << " ";
     }
     std::cout << endl;
 }
@@ -736,35 +706,4 @@ int BPTree::getLevelCount() {
         levels++;
     }
     return levels;
-}
-
-// TODO TODO TODO
-// plagiarised, remove
-void BPTree::display(Node* current)
-{
-    if (current == NULL)
-        return;
-    queue<Node*> q;
-    q.push(current);
-    while (!q.empty()) {
-        int l;
-        l = q.size();
- 
-        for (int i = 0; i < l; i++) {
-            Node* tNode = q.front();
-            q.pop();
- 
-            for (int j = 0; j < tNode->keys.size(); j++)
-                if (tNode != NULL)
-                    cout << tNode->keys[j] << " ";
-                cout << "[" << tNode->size << "] ";
- 
-            for (int j = 0; j < tNode->ptrs.size(); j++)
-                if (tNode->ptrs[j] != NULL && (!tNode->isLeaf))
-                    q.push((Node*) tNode->ptrs[j]);
- 
-            cout << "\t";
-        }
-        cout << endl;
-    }
 }

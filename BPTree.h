@@ -23,32 +23,24 @@ class BPTree {
     Disk disk; // the associated disk
 
     public:
-        BPTree();
         BPTree(short int mK, Disk dsk);
 
-        void setRoot(Node *root);
         void insertInternal(int key, Node *parent, Node *child);
-        Node *findParent(Node *root, Node *child);
         void insert(int key, Record *recordPtr); //insert record pointer and its key into the BPTree
-        void llInsert(int key);
         void showRoot();
-        void showChildren();
         int getNodeCount();
         int getLevelCount();
 
-
-        //Retrieval for experiment 3 & 4
-        //vector<void *> searchKey(int key);
+        // Retrieval for experiment 3 & 4
         vector<Record *> searchKeyRange(int keyMin, int keyMax);
 
-        // experiment 5: deletion
+        // Deletion for experiment 5
         void deleteKey(int key);
         void propagateMin(Node* nodePtr, int min);
         Node* getLeftSibling(Node* nodePtr);
         Node* getRightSibling(Node* nodePtr);
         void deleteInternal(int key, Node* nodePtr, Node* child);
 
-        void display(Node *root); // TODO remove this
         Node *getRoot();
 };
 
