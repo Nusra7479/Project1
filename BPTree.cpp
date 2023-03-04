@@ -298,7 +298,7 @@ vector <Record *> BPTree::searchKeyRange(int minNumVotes, int maxNumVotes) { //T
     cout << "The number of index nodes the process accesses: " << indexNodesAccessed << endl;
     //cout << "The number of data blocks the process accesses: "<< dataBlocksAccessed << endl;
     //cout << "The average of �averageRating�s� of the records that are returned: " << avgRating << endl;
-    cout << "The running time of the retrieval process: " << runningTime.count() << " ms" << endl;
+    cout << "The running time of the retrieval process (B+ Tree): " << runningTime.count() << " ms" << endl;
     return result;
 
     }

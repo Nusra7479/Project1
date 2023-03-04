@@ -29,7 +29,7 @@ void readTSVFile(string filename, Disk& disk, BPTree& bptree) {
         record.numVotes = numVotes;
         disk.addRecord(record);
     }
-    disk.finalizeBlocks(); // TODO without this: missing some records. with: too many records, blocks. debug? 
+    disk.finalizeBlocks(); // TODO without this: missing some records. with: too many records, blocks. debug?
     infile.close();
 }
 
@@ -90,9 +90,9 @@ int main()
     // disk.printRecords();
 
     // Sort records
-    // if (!sorted)
-    //     disk.sortRecords();
-        
+    if (sorted)
+         disk.sortRecords();
+
     // disk.printRecords();
 
     // Get all records on disk for insertion in BPTree

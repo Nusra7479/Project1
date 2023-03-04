@@ -198,11 +198,9 @@ public:
         int dataBlocksAccessed;
 
         for (int i = 0; i < numBlocks; i++) {
-            Block block = blocks[i];
-            for (int j = 0; j < block.records.size(); j++) {
-                Record record = block.records[j];
+            for (int j = 0; j < blocks[i].records.size(); j++) {
                 for (int k = 0; k < b_targets.size(); k++){
-                     if (b_targets[k]->tconst == record.tconst){
+                     if (b_targets[k]->tconst == blocks[i].records[j].tconst){
                         dataBlocksAccessed++;
                         break;
                     }
