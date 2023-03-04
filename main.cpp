@@ -29,7 +29,7 @@ void readTSVFile(string filename, Disk& disk, BPTree& bptree) {
         record.numVotes = numVotes;
         disk.addRecord(record);
     }
-    disk.finalizeBlocks(); // TODO without this: missing some records. with: too many records, blocks. debug?
+    disk.finalizeBlocks(); 
     infile.close();
 }
 
@@ -85,13 +85,14 @@ int main()
     // Read TSV to disk
     string filename = "data.tsv";
     // string filename = "data-small.tsv"; // first 60 records, with first record numVotes changed to 16
+    // string filename = "data-lecture.tsv";
     readTSVFile(filename, disk, bpTree);
 
     // disk.printRecords();
 
     // Sort records
     if (sorted)
-         disk.sortRecords();
+         disk.sortRecords(); // makes the last block not be counted. problem with sorting? 
 
     // disk.printRecords();
 
@@ -106,10 +107,12 @@ int main()
     // disk.printRecords();
 
     // Debug: checking the root and root's children nodes
-    std::cout << "-- ROOT --" << endl;
-    bpTree.showRoot();
-    std::cout << "-- CHILDREN --" << endl;
-    bpTree.showChildren();
+    // std::cout << "-- ROOT --" << endl;
+    // bpTree.showRoot();
+    // std::cout << "-- CHILDREN --" << endl;
+    // bpTree.showChildren();
+
+    // bpTree.display(bpTree.getRoot()); // todo remove
 
     //cout<<"by order"<<endl;
     // disk.printRecords();
@@ -163,6 +166,13 @@ int main()
     }
     cout << endl;
     cout << "------------------------ Experiment 5 ------------------------" <<endl;
+    // bpTree.deleteKey(1000); // real experiment
+    bpTree.deleteKey(6042); // testing
+    cout << "Number of nodes of the B+ tree: " << bpTree.getNodeCount() << endl;
+    cout << "Number of levels of the B+ tree: " << bpTree.getLevelCount() << endl;
+    cout << "Content of the root node: ";
+    bpTree.showRoot();
+    cout << endl;
 
     return 0;
 }

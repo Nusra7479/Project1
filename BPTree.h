@@ -44,10 +44,11 @@ class BPTree {
         // experiment 5: deletion
         void deleteKey(int key);
         void propagateMin(Node* nodePtr, int min);
-        Node* getLeftSibling(Node* nodePtr, int min);
-        Node* getRightSibling(Node* nodePtr, int min);
+        Node* getLeftSibling(Node* nodePtr);
+        Node* getRightSibling(Node* nodePtr);
+        void deleteInternal(int key, Node* nodePtr, Node* child);
 
-        void display(Node *root);
+        void display(Node *root); // TODO remove this
         Node *getRoot();
 };
 
