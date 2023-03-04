@@ -86,13 +86,13 @@ int main()
     string filename = "data.tsv";
     // string filename = "data-small.tsv"; // first 60 records, with first record numVotes changed to 16
     readTSVFile(filename, disk, bpTree);
-
+    disk.countNumOfRecordsIncludingDeleted();
     // disk.printRecords();
 
     // Sort records
     if (sorted)
          disk.sortRecords();
-
+    disk.countNumOfRecordsIncludingDeleted();
     // disk.printRecords();
 
     // Get all records on disk for insertion in BPTree

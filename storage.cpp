@@ -43,6 +43,18 @@ public:
         return result;
     }
 
+    int countNumOfRecordsIncludingDeleted(){
+        int numRecords=0;
+        for (int i = 0; i < numBlocks; i++) {
+            Block block = blocks[i];
+            for (int j = 0; j < block.records.size(); j++) {
+                numRecords++;
+            }
+        }
+        cout<<"Number of records (including deleted) on Disk: "<<numRecords<<endl;
+        return numRecords;
+    }
+
 
     void addRecord(Record record) {
         //Check if disk capacity is full
@@ -138,6 +150,7 @@ public:
         for (int i = 0; i < records.size(); i++) {
             addRecord(records[i]);
         }
+        finalizeBlocks();
         cout<<"Records sorted!"<<endl;
     }
 
