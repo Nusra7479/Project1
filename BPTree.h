@@ -19,7 +19,7 @@ class Node {
 class BPTree {
     Node *root;
     int maxKeys; // maximum no of keys in a node
-    int nodeCount;
+    int nodeCount = 0;
     Disk disk; // the associated disk
 
     public:

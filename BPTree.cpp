@@ -2,13 +2,10 @@
 #include "BPTree.h"
 #include <chrono>
 #include <vector>
-#include <cassert>
+#include <queue>
+#include <cmath>
 
 using namespace std::chrono;
-
-// issues:
-// 1. exception in searchKeyRange (while traversing leaves?). could be due to insertion -> number of ptrs != number of keys + 1
-// 2. duplicate keys in internal nodes in large cases (with whole data.tsv). small cases seem to be ok, so might be issue with insertInternal
 
 Node::Node(){
     vector<int> keyVector;
@@ -20,264 +17,199 @@ Node::Node(){
 
 BPTree::BPTree(short int mK, Disk dsk) {
     maxKeys = mK;
-    disk = dsk;
     root = nullptr;
+    nodeCount = 0;
+    disk = dsk;
 }
 
 void BPTree::insert(int key, Record* recordPtr){
-    // std::cout << "Key: " << endl;
-    // std::cout << key << endl;
-
-    if (root == nullptr){
-        root = new Node();
-        root->size=1;
+    bool inserted = false;
+    if (this->root == NULL) {
+        Node* root = new Node();
+        nodeCount++;
+        root->size = 1;
         root->isLeaf = true;
         root->keys.push_back(key);
-        root->parent = nullptr;
-        nodeCount++;
 
-        LLNode* newLLNode = new LLNode();
-        newLLNode->recordPtr = recordPtr;
-        newLLNode->next = nullptr;
+        LLNode* newNode = new LLNode();
+        newNode->recordPtr = recordPtr;
+        newNode->next = nullptr;
 
-        root->ptrs.push_back(newLLNode);
+        root->ptrs.push_back(newNode);
         root->ptrs.push_back(nullptr);
-    }
+        this->root = root;
+    } else {
+        Node* curr = this->root;
 
-    else {
-        Node* cursor = root;
-
-        while (cursor->isLeaf == false) {
-
-            // std::cout << "Cursor:" << endl;
-            // std::cout << cursor << endl;
-
-            for (int i = 0; i < cursor->size; i++) {
-                if (key < cursor->keys[i]) {
-                    cursor = (Node*) cursor->ptrs[i];
+        while (curr->isLeaf == false) {
+            for (int i = 0; i < curr->size; i++) {
+                if (key < curr->keys[i]) {
+                    curr = (Node*) curr->ptrs[i];
                     break;
                 }
-                if (i == cursor->size - 1) {
-                    // std::cout << "SPECIAL:" << endl;
-                    // std::cout << cursor << endl;
-                    cursor = (Node*) cursor->ptrs[i + 1];
+                if (i == curr->size - 1) {
+                    curr = (Node*) curr->ptrs[i + 1];
                     break;
                 }
             }
         }
 
-        // Reached leaf
-
-        for (int i = 0; i < cursor->size + 1; i++) { // TODO: VERY UGLY
-
-                if (i == cursor->size) {
-                    LLNode* newLLNode = new LLNode();
-                    newLLNode->recordPtr = recordPtr;
-                    newLLNode->next = nullptr;
-
-                    cursor->keys.insert(cursor->keys.begin() + i, key);
-                    cursor->ptrs.insert(cursor->ptrs.begin() + i, newLLNode);
-                    cursor->size++;
-
-                    break;
+        for (int i = 0; i < curr->size; i++) {
+            if (key > curr->keys[i]) {
+                continue;
+            }
+            
+            // Duplicate: insert into LL
+            if (key == curr->keys[i]) {
+                LLNode* currentNode = (LLNode*) curr->ptrs[i];
+                while (currentNode->next) {
+                    currentNode = currentNode->next;
                 }
-
-                if (key > cursor->keys[i]) {
-                    continue;
-                }
-
-                // Duplicate: insert into LL
-                if (key == cursor->keys[i]) {
-                    LLNode* existingPtr = (LLNode*) cursor->ptrs[i];
-                    LLNode* newNode = new LLNode();
-                    newNode->next = existingPtr;
-                    newNode->recordPtr = recordPtr;
-                    cursor->ptrs[i] = newNode;
-                    break;
-                }
-
-                // Make LL of length 1
+                LLNode* newLLNode = new LLNode();
+                newLLNode->next = nullptr;
+                newLLNode->recordPtr = recordPtr;
+                currentNode->next = newLLNode;
+                inserted = true;
+                break;
+            } else { // Make LL of length 1
                 LLNode* newLLNode = new LLNode();
                 newLLNode->recordPtr = recordPtr;
                 newLLNode->next = nullptr;
 
-                cursor->keys.insert(cursor->keys.begin() + i, key);
-                cursor->ptrs.insert(cursor->ptrs.begin() + i, newLLNode);
-                cursor->size++;
+                curr->keys.insert(curr->keys.begin() + i, key);
+                curr->ptrs.insert(curr->ptrs.begin() + i, newLLNode);
+                curr->size++;
 
+                inserted = true;
                 break;
-
+            }
         }
 
-            // std::cout << "isLeaf:" << endl;
-            // std::cout << cursor->isLeaf << endl;
+        if (!inserted) {
+            LLNode* newLLNode = new LLNode();
+            newLLNode->recordPtr = recordPtr;
+            newLLNode->next = nullptr;
 
-            // std::cout << "parent?:" << endl;
-            // std::cout << (cursor->parent) << endl;
+            curr->keys.insert(curr->keys.begin() + curr->size, key);
+            curr->ptrs.insert(curr->ptrs.begin() + curr->size, newLLNode);
+            curr->size++;
 
-            // std::cout << "key?:" << endl;
-            // std::cout << key << endl;
-
-            // std::cout << "size?:" << endl;
-            // std::cout << (cursor->size) << endl;
-
-            // std::cout << " " << endl;
-
-        // Split if needed
-        if (cursor->size > this->maxKeys) {
-
-            int halfSize = cursor->size / 2; // floor
-            vector<int> leftKeys(cursor->keys.begin(), cursor->keys.begin() + (cursor->size - halfSize));
-            vector<int> rightKeys(cursor->keys.begin() + (cursor->size - halfSize), cursor->keys.end());
+            inserted = true;
+        }
+        
+        if (curr->size > this->maxKeys) {
+            int split = (curr->size + 1)/ 2;
+            vector<int> leftKeys(curr->keys.begin(), curr->keys.begin() + split);
+            vector<int> rightKeys(curr->keys.begin() + split, curr->keys.end());
 
             int rightSize = rightKeys.size();
             int leftSize = leftKeys.size();
 
-            Node* right = new Node();
-            right->isLeaf = true;
-            right->size = rightSize;
-            right->keys = rightKeys;
+            Node* newLeaf = new Node();
             nodeCount++;
+            newLeaf->isLeaf = true;
+            newLeaf->size = rightSize;
+            newLeaf->keys = rightKeys;
+            newLeaf->parent = curr->parent;
 
-            // Handling pointers
+            vector<void*> leftPtrs(curr->ptrs.begin(), curr->ptrs.begin() + split);
+            vector<void*> rightPtrs(curr->ptrs.begin() + split, curr->ptrs.end());
+            leftPtrs.push_back(newLeaf);
+            newLeaf->ptrs = rightPtrs;
 
-            int ptrHalfSize = cursor->ptrs.size() / 2;
-            vector<void*> leftPtrs(cursor->ptrs.begin(), cursor->ptrs.begin() + ptrHalfSize);
-            vector<void*> rightPtrs(cursor->ptrs.begin() + ptrHalfSize, cursor->ptrs.end());
-
-            right->ptrs = rightPtrs;
-
-            // Update left leaf
-            cursor->keys = leftKeys;
-            cursor->size = leftKeys.size();
-            cursor->ptrs = leftPtrs;
-            cursor->ptrs.push_back(&right);
-
-            // std::cout << "isLeaf:" << endl;
-            // std::cout << cursor->isLeaf << endl;
-
-            // std::cout << "parent?:" << endl;
-            // std::cout << (cursor->parent) << endl;
-
-            if (cursor->isLeaf && !(cursor->parent)) { // Should only happen once?
-                // std::cout << "once?" << endl;
-
+            curr->ptrs = leftPtrs;
+            curr->keys = leftKeys;
+            curr->size = leftSize;
+            
+            if (curr == this->root) {
                 Node* newRoot = new Node();
-
+                nodeCount++;
                 newRoot->isLeaf = false;
                 newRoot->size = 1;
 
-                vector<int> newRootKeys; // TODO: make this less ugly
-                int promotedKey = right->keys.front();
-
-                // std::cout << "promotedKey:" << endl;
-                // std::cout << promotedKey << endl;
-
-                newRootKeys.push_back(promotedKey);
+                vector<int> newRootKeys;
+                newRootKeys.push_back(newLeaf->keys.front());
                 newRoot->keys = newRootKeys;
 
                 vector<void*> newRootPtrs;
-                newRootPtrs.push_back(cursor);
-                newRootPtrs.push_back(right);
+                newRootPtrs.push_back(curr);
+                newRootPtrs.push_back(newLeaf);
                 newRoot->ptrs = newRootPtrs;
                 newRoot->parent = nullptr;
-                cursor->parent = newRoot;
-                right->parent = newRoot;
-
-                this->root = newRoot;
-                nodeCount++;
-                return;
+                curr->parent = newRoot;
+                newLeaf->parent = newRoot;
+                this->root= newRoot;
+            } else {
+                insertInternal(newLeaf->keys.front(), curr->parent, newLeaf);
             }
-
-            right->parent = cursor->parent;
-            
-            assert (cursor->keys.size() + 1 == cursor->ptrs.size());
-
-            // Parent insertion / update
-            int promotedKey = right->keys.front();
-            insertInternal(promotedKey, cursor->parent, right);
         }
     }
 }
 
-void BPTree::insertInternal(int key, Node* parent, Node* child) {
-
-    // insert key and pointer
-    for (int i = 0; i < parent->size; i++) {
-        if (key > parent->keys[i]) {
+void BPTree::insertInternal(int key, Node* curr, Node* child) {
+    bool inserted = false;
+    for (int i = 0; i < curr->size; i++) {
+        if (key > curr->keys[i]) {
             continue;
         }
-        parent->keys.insert(parent->keys.begin() + i, key);
-        parent->ptrs.insert(parent->ptrs.begin() + i + 1, child);
-        parent->size++;
+        curr->keys.insert(curr->keys.begin() + i, key);
+        curr->ptrs.insert(curr->ptrs.begin() + i + 1, child);
+        curr->size++;
+        inserted = true;
         break;
     }
-
-    // split if needed
-    if (parent->size > this->maxKeys) {
-
-        // remove the key to be inserted to parent
-        int promotedKeyIndex = (parent->keys.size() - 1) / 2;
-        int promotedKey = parent->keys[promotedKeyIndex];
-        parent->keys.erase(parent->keys.begin() + promotedKeyIndex);
-
-        // remaining keys: distribute between left and right, with more in left
-        int leftSize = parent->keys.size() - parent->keys.size() / 2; // floor
-        vector<int> leftKeys(parent->keys.begin(), parent->keys.begin() + leftSize);
-        vector<int> rightKeys(parent->keys.begin() + leftSize, parent->keys.end());
-        int rightSize = rightKeys.size();
-
-        // distribute pointers
-        vector<void*> leftPtrs(parent->ptrs.begin(), parent->ptrs.begin() + leftSize + 1);
-        vector<void*> rightPtrs(parent->ptrs.begin() + leftSize + 1, parent->ptrs.end());
-
-        // create right node
-        Node* right = new Node();
-        right->isLeaf = false;
-        right->size = rightSize;
-        right->parent = parent->parent;
-        right->keys = rightKeys;
-        right->ptrs = rightPtrs;
-
+    if (!inserted) {
+        curr->keys.insert(curr->keys.begin() + curr->size, key);
+        curr->ptrs.insert(curr->ptrs.begin() + curr->size + 1, child);
+        curr->size++;
+        inserted = true;
+    }
+    if (curr->size > this->maxKeys) {
+        Node* newInternal = new Node();
         nodeCount++;
+        newInternal->isLeaf = false;
+        int split = curr->size / 2;
+        int promotedKey = curr->keys[split];
 
-        // Update left node
-        parent->size = leftSize;
-        parent->keys = leftKeys;
-        parent->ptrs = leftPtrs;
+        // promotedKey is removed.
+        vector<int> leftKeys(curr->keys.begin(), curr->keys.begin() + split);
+        vector<int> rightKeys(curr->keys.begin() + split + 1, curr->keys.end());
 
-        // update parent pointers of right node's children
-        for (int i = 0; i < right->ptrs.size(); i++) {
-            Node* currChild = (Node*) right->ptrs[i];
-            currChild->parent = right;
-        }
+        vector<void*> leftPtrs(curr->ptrs.begin(), curr->ptrs.begin() + split + 1);
+        vector<void*> rightPtrs(curr->ptrs.begin() + split + 1, curr->ptrs.end());
 
-        // two cases: root or internal
-        if (!parent->parent) { // current node is the root, we need to make a new root
+        newInternal->keys = rightKeys;
+        newInternal->ptrs = rightPtrs;
+        newInternal->size = rightKeys.size();  
+        newInternal->parent = curr->parent;
+        
+        curr->keys = leftKeys;
+        curr->ptrs = leftPtrs;
+        curr->size = leftKeys.size();
+
+        for (int i = 0; i < newInternal->size + 1; i++) {
+            Node* child = (Node*) newInternal->ptrs[i];
+            child->parent = newInternal;
+        }      
+
+        if (curr == this->root) {
             Node* newRoot = new Node();
-
+            nodeCount++;
             newRoot->isLeaf = false;
             newRoot->size = 1;
-
-            vector<int> newRootKeys; // TODO: make this less ugly
-            newRootKeys.push_back(promotedKey);
-            newRoot->keys = newRootKeys;
-
-            vector<void*> newRootPtrs;
-            newRootPtrs.push_back(parent);
-            newRootPtrs.push_back(right);
-            newRoot->ptrs = newRootPtrs;
-            newRoot->parent = nullptr;
-            parent->parent = newRoot;
-
-            nodeCount++;
-
+            newRoot->keys.push_back(promotedKey);
+            newRoot->ptrs.push_back(curr);
+            newRoot->ptrs.push_back(newInternal);
+            newRoot->parent = nullptr;            
+            newInternal->parent = newRoot;
+            curr->parent = newRoot;
             this->root = newRoot;
-        } else { // current node is internal, recurse on promoted key
-            insertInternal(promotedKey, parent->parent, parent);
+        } else {
+            insertInternal(promotedKey, curr->parent, newInternal);
         }
     }
 }
+
 
 vector <Record *> BPTree::searchKeyRange(int minNumVotes, int maxNumVotes) { //ToDo Duplicates & dataBlocksAccessed
     vector <Record *> result;
@@ -330,13 +262,19 @@ vector <Record *> BPTree::searchKeyRange(int minNumVotes, int maxNumVotes) { //T
                 break;
             }
             if (ptrKey >= minNumVotes && ptrKey <= maxNumVotes) {
+                //void *recordptr = cursor->ptrs[i];
+                //result.push_back(recordptr);
+
+                //// handle duplicates TODO
+                // here
+                int j = 0;
                 LLNode* listNode = (LLNode*) cursor->ptrs[i];
-                while (listNode) {
+                while (listNode){
                     Record* recordptr = listNode->recordPtr;
                     result.push_back(recordptr);
                     listNode = listNode->next;
+                    j++;
                 }
-
             }
         }
         if (!allFound){

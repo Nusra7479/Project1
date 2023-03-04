@@ -133,13 +133,12 @@ int main()
     cout << "------------------------ Experiment 3 ------------------------" <<endl; //Requires Testing
     ////Search in B+ Tree
     vector<Record*> b_targets3;
-    // b_targets3 = bpTree.searchKeyRange(500, 500);
-    b_targets3 = bpTree.searchKeyRange(16, 16);
+    b_targets3 = bpTree.searchKeyRange(500, 500);
     disk.getDiskIO(b_targets3);
     getAvgRating(b_targets3);
 
     ////Search in Storage
-    if (!sorted)
+    if (sorted)
         disk.searchKey(500, 500);
     else{
         vector<Record> targets3;
