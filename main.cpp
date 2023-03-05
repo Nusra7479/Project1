@@ -66,13 +66,11 @@ int main()
     string filename = "data.tsv";
     readTSVFile(filename, disk, bpTree);
     disk.countNumOfRecordsIncludingDeleted();
-    // disk.printRecords();
 
     // Sort records
     if (sorted)
          disk.sortRecords();
     disk.countNumOfRecordsIncludingDeleted();
-    // disk.printRecords();
 
     // Get all records on disk for insertion in BPTree
     vector<Record*> allRecordPointers = disk.getAllRecords();
