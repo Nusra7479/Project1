@@ -160,9 +160,9 @@ public:
                 }
                 if (record.numVotes > maxKey){
                     // end search
-                    int numDataBlocks = i;
+                    int numDataBlocks = i+1;
                     if (j == 0)
-                        numDataBlocks = i-1;
+                        numDataBlocks = i;
 
                     // stop timer & print results
                     auto stop = high_resolution_clock::now();
