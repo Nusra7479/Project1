@@ -80,20 +80,6 @@ int main()
         bpTree.insert(recordPtr->numVotes, recordPtr);
     }
 
-    // disk.printRecords();
-
-    // Debug: checking the root and root's children nodes
-    // std::cout << "-- ROOT --" << endl;
-    // bpTree.showRoot();
-    // std::cout << "-- CHILDREN --" << endl;
-    // bpTree.showChildren();
-
-    // bpTree.display(bpTree.getRoot()); // todo remove
-
-    //cout<<"by order"<<endl;
-    // disk.printRecords();
-    // Print to test again
-    //disk.printRecords();
     cout << "------------------------ Experiment 1 ------------------------" <<endl;
     cout<<"Total number of records: "<<disk.numberOfRecords()<<endl;
     cout<<"Size of a record: "<<disk.sizeOfRecord()<<endl;
