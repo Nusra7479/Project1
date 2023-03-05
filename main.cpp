@@ -56,7 +56,7 @@ float getAvgRating (vector<Record*> b_targets){
 int main()
 {
     short int n = 15;
-    bool sorted = true;
+    bool sorted = true; // sorted is true since we are implementing the storage sequentially
 
     cout << "------------------------ Storage aspects and testing ------------------------" <<endl;
     Disk disk;

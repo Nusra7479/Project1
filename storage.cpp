@@ -29,7 +29,7 @@ public:
         curBlock.size=0;
     }
 
-    vector<Record*> getAllRecords() {
+    vector<Record*> getAllRecords() { //Returns a vector containing pointers to all records
         vector<Record*> result;
         for (int i = 0; i < numBlocks; i++) {
             Block block = blocks[i];
@@ -43,7 +43,7 @@ public:
         return result;
     }
 
-    int countNumOfRecordsIncludingDeleted(){
+    int countNumOfRecordsIncludingDeleted(){ //Returns the number of records in the disk, including deleted ones
         int numRecords=0;
         for (int i = 0; i < numBlocks; i++) {
             Block block = blocks[i];
@@ -56,7 +56,7 @@ public:
     }
 
 
-    void addRecord(Record record) {
+    void addRecord(Record record) { //adds records into the disk
         //Check if disk capacity is full
         if (numBlocks >= MAX_BLOCKS) {
             cerr << "Error: Disk capacity is full" << endl;
@@ -77,15 +77,14 @@ public:
         }
     }
 
-    void finalizeBlocks() {
-        // Pushes the final block (if any) to the list of blocks
+    void finalizeBlocks() { // Pushes the final block (if any) to the list of blocks
         if (curBlock.records.size() > 0) {
             blocks.push_back(curBlock);
             numBlocks++;
         }
     }
 
-    void printRecords() { //only prints undeleted records
+    void printRecords() { //Prints all undeleted records
         cout<<"Printing records..."<<endl;
         for (int i = 0; i < numBlocks; i++) {
             cout<<"Printing block "<<i+1<<endl;
@@ -100,7 +99,7 @@ public:
         cout<<"Records printed!"<<endl;
     }
 
-    int numberOfRecords(){
+    int numberOfRecords(){ //Returns number of undeleted records
         int numRecords=0;
         for (int i = 0; i < numBlocks; i++) {
             Block block = blocks[i];
@@ -114,21 +113,11 @@ public:
         return numRecords;
     }
 
-    int sizeOfRecord(){
-        return sizeof(Record);
-    }
 
-    int numberOfRecordsPerBlock(){
-        return blocks[0].records.size();
-    }
 
-    int numberOfBlocksUsed(){
-        return blocks.size();
-    }
-
-    void sortRecords() { //i left it to sort deleted records as well cause we aren't rlly deleting it anws?
+    void sortRecords() { //Sorts the records in the disk by combining all of them into a vector, and sorting the vector based on numVotes
         cout<<"Sorting records..."<<endl;
-        // Combine all blocks into a single vector
+        // Combine all records into a single vector
         vector<Record> records;
         for (int i = 0; i < numBlocks; i++) {
             Block block = blocks[i];
@@ -150,11 +139,12 @@ public:
         for (int i = 0; i < records.size(); i++) {
             addRecord(records[i]);
         }
+        //Pushes in the final unfilled block
         finalizeBlocks();
         cout<<"Records sorted!"<<endl;
     }
 
-    vector<Record> searchKey(int minKey, int maxKey) { //added to check if record has been deleted
+    vector<Record> searchKey(int minKey, int maxKey) { //Returns a vector of records with numVotes between minKey and maxKey inclusive
         auto start = high_resolution_clock::now();
         vector<Record> result;
 
@@ -191,7 +181,7 @@ public:
         }
     }
 
-    vector<Record> searchRecord(int minNumVotes, int maxNumVotes) { //returns a vector consisting all records with target numVotes
+    vector<Record> searchRecord(int minNumVotes, int maxNumVotes) { //Returns a vector consisting all records with target numVotes
         auto start = high_resolution_clock::now();
 
         int i;
@@ -220,7 +210,7 @@ public:
         return result;
     }
 
-    int getDiskIO(vector<Record*> b_targets){ //no need to check if record is deleted because it will be accessed anws
+    int getDiskIO(vector<Record*> b_targets){
         int dataBlocksAccessed;
         bool terminateLoop = false;
         for (int i = 0; i < numBlocks; i++) {
@@ -240,17 +230,27 @@ public:
         return dataBlocksAccessed;
     }
 
-    void deleteRecord(Record* recordPtr) {
-        // check if record has already been deleted
+    void deleteRecord(Record* recordPtr) { //Deletes a record via call by reference
+        //Check if record has already been deleted
         if (recordPtr->deleted==true) {
             cerr << "Error: Record not found" << endl;
             return;
         }
-
-        // Else, we mark the record as deleted
+        //Else, we mark the record as deleted
         recordPtr->numVotes = -1;
         recordPtr->deleted = true;
+    }
 
+    int sizeOfRecord(){
+        return sizeof(Record);
+    }
+
+    int numberOfRecordsPerBlock(){
+        return blocks[0].records.size();
+    }
+
+    int numberOfBlocksUsed(){
+        return blocks.size();
     }
 
 private:
