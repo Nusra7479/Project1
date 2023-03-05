@@ -160,7 +160,7 @@ int main()
     //
     cout << endl;
 
-    //Delete in B+ Tree
+    // Delete in B+ Tree
     auto start = high_resolution_clock::now();
     bpTree.deleteKey(1000); // real experiment
     auto stop = high_resolution_clock::now();
@@ -171,10 +171,10 @@ int main()
     bpTree.showRoot();
     if (runningTime.count() == 0){
         auto runningTime = duration_cast<nanoseconds>(stop - start);
-        cout << "The running time of the deletion process (B+ Tree): " << runningTime.count() << " ns" << endl;
+        cout << "The running time of the deletion process (B+ Tree): " << runningTime.count() << " nanoseconds" << endl;
     }
      else
-        cout << "The running time of the deletion process (B+ Tree): " << runningTime.count() << " ms" << endl;
+        cout << "The running time of the deletion process (B+ Tree): " << runningTime.count() << " microseconds" << endl;
     cout << endl;
 
 

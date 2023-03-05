@@ -170,15 +170,16 @@ public:
                     cout << "The number of data blocks that would be accessed by a brute-force linear scan method: " << numDataBlocks << endl;
                     if (runningTime.count() == 0){
                         auto runningTime = duration_cast<nanoseconds>(stop - start);
-                        cout << "The running time of the retrieval process (B+ Tree): " << runningTime.count() << " ns" << endl;
+                        cout << "The running time of the retrieval process (brute-force linear scan): " << runningTime.count() << " nanoseconds" << endl;
                     }
                     else
-                        cout << "The running time of the retrieval process (B+ Tree): " << runningTime.count() << " ms" << endl;
+                        cout << "The running time of the retrieval process (brute-force linear scan): " << runningTime.count() << " microseconds" << endl;
                     cout << "The number of records (brute-force linear scan): " << numOfRecords << endl;
                     return result;
                 }
             }
         }
+        return result;
     }
 
     vector<Record> searchRecord(int minNumVotes, int maxNumVotes) { //Returns a vector consisting all records with target numVotes
@@ -202,10 +203,10 @@ public:
         cout << "The number of data blocks that would be accessed by a brute-force linear scan method: " << i << endl;
         if (runningTime.count() == 0){
             auto runningTime = duration_cast<nanoseconds>(stop - start);
-            cout << "The running time of the retrieval process (B+ Tree): " << runningTime.count() << " ns" << endl;
+            cout << "The running time of the retrieval process (brute-force linear scan): " << runningTime.count() << " nanoseconds" << endl;
         }
         else
-            cout << "The running time of the retrieval process (B+ Tree): " << runningTime.count() << " ms" << endl;
+            cout << "The running time of the retrieval process (brute-force linear scan): " << runningTime.count() << " microseconds" << endl;
         cout << "The number of records (brute-force linear scan): " << result.size() << endl;
         return result;
     }

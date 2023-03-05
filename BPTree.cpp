@@ -290,10 +290,10 @@ vector <Record *> BPTree::searchKeyRange(int minNumVotes, int maxNumVotes) { //T
     cout << "The number of index nodes the process accesses: " << indexNodesAccessed << endl;
     if (runningTime.count() == 0){
         auto runningTime = duration_cast<nanoseconds>(stop - start);
-        cout << "The running time of the retrieval process (B+ Tree): " << runningTime.count() << " ns" << endl;
+        cout << "The running time of the retrieval process (B+ Tree): " << runningTime.count() << " nanoseconds" << endl;
     }
     else
-        cout << "The running time of the retrieval process (B+ Tree): " << runningTime.count() << " ms" << endl;
+        cout << "The running time of the retrieval process (B+ Tree): " << runningTime.count() << " microseconds" << endl;
     return result;
 
     }
@@ -686,7 +686,7 @@ Node* BPTree::getRoot() {
 void BPTree::showRoot() {
     Node* root = this->root;
     for (int i = 0; i < root->size; i++) {
-        std::cout << root->keys[i] << ", ";
+        std::cout << root->keys[i] << " ";
     }
     std::cout << endl;
 }
@@ -698,12 +698,16 @@ int BPTree::getNodeCount() {
 }
 
 int BPTree::getLevelCount() {
+    if (!this->root) {
+        return 0;
+    }
     int levels = 1;
     Node* cursor = root;
     while (!cursor->isLeaf) {
         cursor = (Node*) cursor->ptrs[0];
         levels++;
     }
+    levels++; // must count leaf level
     return levels;
 }
 
