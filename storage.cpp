@@ -211,7 +211,7 @@ public:
     }
 
     int getDiskIO(vector<Record*> b_targets){
-        int dataBlocksAccessed;
+        int dataBlocksAccessed = 0;
         bool terminateLoop = false;
         for (int i = 0; i < numBlocks; i++) {
             for (int j = 0; j < blocks[i].records.size(); j++) {
