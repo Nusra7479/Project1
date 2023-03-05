@@ -154,24 +154,27 @@ public:
         cout<<"Records sorted!"<<endl;
     }
 
-    void searchKey(int minKey, int maxKey) { //added to check if record has been deleted
+    vector<Record> searchKey(int minKey, int maxKey) { //added to check if record has been deleted
         auto start = high_resolution_clock::now();
-        ////start search
+        vector<Record> result;
+
+        //start search
         int numOfRecords = 0;
          for (int i = 0; i < numBlocks; i++) {
             Block block = blocks[i];
             for (int j = 0; j < block.records.size(); j++) {
                 Record record = block.records[j];
                 if (record.numVotes >= minKey && record.numVotes <= maxKey && !record.deleted){
+                    result.push_back(record);
                     numOfRecords++;
                 }
                 if (record.numVotes > maxKey){
-                    //// end search
+                    // end search
                     int numDataBlocks = i;
                     if (j == 0)
                         numDataBlocks = i-1;
 
-                    //// stop timer & print results
+                    // stop timer & print results
                     auto stop = high_resolution_clock::now();
                     auto runningTime = duration_cast<microseconds>(stop - start);
                     cout << "The number of data blocks that would be accessed by a brute-force linear scan method: " << numDataBlocks << endl;
@@ -182,7 +185,7 @@ public:
                     else
                         cout << "The running time of the retrieval process (B+ Tree): " << runningTime.count() << " ms" << endl;
                     cout << "The number of records (brute-force linear scan): " << numOfRecords << endl;
-                    return;
+                    return result;
                 }
             }
         }

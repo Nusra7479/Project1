@@ -41,26 +41,6 @@ void printRecords(const vector<Record>& records) {
     }
     cout << "Records printed!" << endl;
 }
-/*
-int getDiskIO(Disk disk, vector<Record*> b_targets){
-    int dataBlocksAccessed;
-
-    for (int i = 0; i < disk.getNumBlocks(); i++) {
-        Block block = blocks[i];
-        for (int j = 0; j < block.records.size(); j++) {
-            Record record = block.records[j];
-            for (int k = 0; k < b_targets.size(); k++){
-                 if (b_targets[k]->tconst == record.tconst){
-                    dataBlocksAccessed++;
-                    break;
-                }
-            }
-        }
-    }
-    cout << "The number of data blocks the process accesses: "<< dataBlocksAccessed << endl;
-    return dataBlocksAccessed;
-}
-*/
 
 float getAvgRating (vector<Record*> b_targets){
     float totalRating;
@@ -84,8 +64,6 @@ int main()
 
     // Read TSV to disk
     string filename = "data.tsv";
-    // string filename = "data-small.tsv"; // first 60 records, with first record numVotes changed to 16
-    // string filename = "data-lecture.tsv";
     readTSVFile(filename, disk, bpTree);
     disk.countNumOfRecordsIncludingDeleted();
     // disk.printRecords();
@@ -134,13 +112,13 @@ int main()
     cout << endl;
 
     cout << "------------------------ Experiment 3 ------------------------" <<endl; //Requires Testing
-    ////Search in B+ Tree
+    //Search in B+ Tree
     vector<Record*> b_targets3;
     b_targets3 = bpTree.searchKeyRange(500, 500);
     disk.getDiskIO(b_targets3);
     getAvgRating(b_targets3);
     cout << endl;
-    ////Search in Storage
+    //Search in Storage
     if (sorted)
         disk.searchKey(500, 500);
     else{
@@ -150,13 +128,13 @@ int main()
     }
     cout << endl;
     cout << "------------------------ Experiment 4 ------------------------" <<endl; //Requires Testing
-    ////Search in B+ Tree
+    //Search in B+ Tree
     vector<Record*> b_targets4;
     b_targets4 = bpTree.searchKeyRange(30000, 40000);
     disk.getDiskIO(b_targets4);
     getAvgRating(b_targets4);
     cout << endl;
-    ////Search in Storage
+    //Search in Storage
     if (sorted)
         disk.searchKey(30000, 40000);
     else{
@@ -166,14 +144,25 @@ int main()
     }
     cout << endl;
     cout << "------------------------ Experiment 5 ------------------------" <<endl;
-    if (sorted)
-        disk.searchKey(1000, 1000);
+    //Delete in Storage
+    vector<Record> targets5;
+    if (sorted){
+        targets5=disk.searchKey(1000, 1000);
+    }
     else{
-        vector<Record> targets5;
+
         targets5=disk.searchRecord(1000, 1000);
         //printRecords(targets5);
     }
+    // Do not delete records yet, delete using bpTree (running Time and data blocks accessed for deletion ver similar to that of retirval)
+    // Comment out below portion to delete the keys by brute-force linear scan
+    //
+    //for (auto& r : targets5)
+    //   disk.deleteRecord(&r);
+    //
     cout << endl;
+
+    //Delete in B+ Tree
     auto start = high_resolution_clock::now();
     bpTree.deleteKey(1000); // real experiment
     auto stop = high_resolution_clock::now();

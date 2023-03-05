@@ -215,13 +215,13 @@ void BPTree::insertInternal(int key, Node* curr, Node* child) {
 vector <Record *> BPTree::searchKeyRange(int minNumVotes, int maxNumVotes) { //ToDo Duplicates & dataBlocksAccessed
     vector <Record *> result;
 
-    //// start timer && initialize values
+    // start timer && initialize values
     auto start = high_resolution_clock::now();
     int indexNodesAccessed = 0;
 
     Node* root = getRoot();
 
-    ////If root is null, empty tree
+    //If root is null, empty tree
     if (root == nullptr){
         std::cout << "ERROR: B+ Tree is Empty!" << std::endl;
         return result; // empty vector
@@ -233,7 +233,7 @@ vector <Record *> BPTree::searchKeyRange(int minNumVotes, int maxNumVotes) { //T
 
     indexNodesAccessed++; // first node - root
 
-    ////traverse until we find the leaf node pertaining the minNumVotes
+    //traverse until we find the leaf node pertaining the minNumVotes
     while (cursor->isLeaf == false){
         for (int i = 0; i < cursor->size; i++) {
             if (minNumVotes < cursor->keys[i]) {
@@ -250,7 +250,7 @@ vector <Record *> BPTree::searchKeyRange(int minNumVotes, int maxNumVotes) { //T
         }
     }
 
-    //// traverse leaf node to find the keys
+    // traverse leaf node to find the keys
     bool allFound = false;
     while (!allFound){
         for (int i = 0; i < cursor->size; i++) {
@@ -260,11 +260,7 @@ vector <Record *> BPTree::searchKeyRange(int minNumVotes, int maxNumVotes) { //T
                 break;
             }
             if (ptrKey >= minNumVotes && ptrKey <= maxNumVotes) {
-                //void *recordptr = cursor->ptrs[i];
-                //result.push_back(recordptr);
-
-                //// handle duplicates TODO
-                // here
+                // find the relevant keys and the pointer pointing to the records
                 int j = 0;
                 LLNode* listNode = (LLNode*) cursor->ptrs[i];
                 while (listNode){
@@ -285,18 +281,13 @@ vector <Record *> BPTree::searchKeyRange(int minNumVotes, int maxNumVotes) { //T
         }
     }
 
-    //float avgRating = totalRating/totalRecords;
-
-    ////end timer
+    //end timer
     auto stop = high_resolution_clock::now();
     auto runningTime = duration_cast<microseconds>(stop - start);
 
 
-    //// print results
-    //cout << "------------------------ Experiment 3 ------------------------" <<endl;
+    // print results
     cout << "The number of index nodes the process accesses: " << indexNodesAccessed << endl;
-    //cout << "The number of data blocks the process accesses: "<< dataBlocksAccessed << endl;
-    //cout << "The average of �averageRating�s� of the records that are returned: " << avgRating << endl;
     if (runningTime.count() == 0){
         auto runningTime = duration_cast<nanoseconds>(stop - start);
         cout << "The running time of the retrieval process (B+ Tree): " << runningTime.count() << " ns" << endl;
